@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="sensorData"
+            type="com.example.luckyleaf.dataholders.LeafSensor"/>
+        <variable
+            name="openZoomClick"
+            type="com.example.luckyleaf.adapter.SensorViewHolder.SensorPressedCallback"/>
+        <variable
+            name="switchClick"
+            type="com.example.luckyleaf.adapter.SensorViewHolder.SensorPressedSwitchCallback"/>
+
+        <variable
+            name="editCallback"
+            type="com.example.luckyleaf.adapter.SensorViewHolder.SensorPressedEditCallback"/>
+        <variable
+            name="sensorIndex"
+            type="Integer"/>
+
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="140dp"
+    android:layout_marginBottom="20dp" >
+
+    <ImageView
+        android:id="@+id/holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/list_item_background"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="@{()->openZoomClick.sensorClicked(sensorData,sensorIndex)}"/>
+    <TextView
+        android:id="@+id/sensorName"
+        app:layout_constraintStart_toStartOf="@id/holder"
+        app:layout_constraintTop_toTopOf="@id/holder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#FFFFFFFF"
+        tools:text="Back Door"
+        android:fontFamily="@font/font_italic"
+        android:textSize="18sp"
+        android:text="@{sensorData.sensorName}"/>
+
+    <TextView
+        app:layout_constraintStart_toEndOf="@id/sensorName"
+
+        app:layout_constraintBottom_toBottomOf="@id/sensorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+
+        android:textColor="@color/locked_color"
+        tools:text="12:52"
+        android:textSize="18sp"
+        app:showIfHasStatus="@{sensorData}"
+        android:text="@{sensorData.getTimeStampAsString()}"/>
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="1:1"
+        android:src="@drawable/ic_item_drawer"
+        app:layout_constraintTop_toTopOf="@id/sensorName"
+        app:layout_constraintEnd_toEndOf="@id/statusLine"
+        app:layout_constraintBottom_toBottomOf="@id/sensorName" />
+    <ImageView
+        android:id="@+id/statusLine"
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="2dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="#FFFFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/sensorName"
+        app:layout_constraintStart_toStartOf="@id/holder"
+        app:layout_constraintEnd_toEndOf="@id/holder"/>
+    <ImageView
+        android:id="@+id/sensorStatusImg"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintStart_toStartOf="@id/holder"
+        app:layout_constraintTop_toTopOf="@id/sensorStatusTextHolder"
+        app:layout_constraintBottom_toBottomOf="@id/sensorStatusTextHolder"
+        app:sensorStatus="@{sensorData}"
+        android:layout_marginStart="10dp" />
+    <ImageView
+        android:id="@+id/statusActive"
+        android:layout_width="25dp"
+        android:layout_height="35dp"
+        android:src="@drawable/list_item_track_background"
+        app:sensorActive="@{sensorData}"
+        android:padding="5dp"
+        android:onClick="@{()->switchClick.sensorClicked(sensorData,sensorIndex)}"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toTopOf="@id/sensorActiveTextHolder"
+        app:layout_constraintBottom_toBottomOf="@id/sensorActiveTextHolder"
+        app:layout_constraintStart_toStartOf="@id/sensorStatusImg"
+        app:layout_constraintEnd_toEndOf="@id/sensorStatusImg"/>
+
+    <ImageView
+        android:id="@+id/sensorActiveTextHolder"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintTop_toTopOf="@id/holder"
+        app:layout_constraintBottom_toBottomOf="@id/holder"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintEnd_toEndOf="@id/holder"
+        app:layout_constraintStart_toEndOf="@id/sensorStatusImg"
+        android:src="@drawable/list_item_text_background"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/sensorActiveTextHolder"
+        app:layout_constraintTop_toTopOf="@id/sensorActiveTextHolder"
+        app:layout_constraintBottom_toBottomOf="@id/sensorActiveTextHolder"
+        android:textSize="12sp"
+        android:fontFamily="@font/font_italic"
+        android:textColor="@color/white"
+        android:layout_marginStart="10dp"
+        android:text="Lucky Leaf" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        app:layout_constraintEnd_toEndOf="@id/sensorActiveTextHolder"
+        app:layout_constraintTop_toTopOf="@id/sensorActiveTextHolder"
+        app:layout_constraintBottom_toBottomOf="@id/sensorActiveTextHolder"
+        android:layout_marginEnd="10dp"
+        app:isSoundActive="@{sensorData}"
+        android:src="@drawable/speaker_off"
+        />
+
+    <ImageView
+        android:id="@+id/sensorStatusTextHolder"
+        android:layout_width="0dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="@id/holder"
+        app:layout_constraintTop_toTopOf="@id/holder"
+        app:layout_constraintBottom_toBottomOf="@id/holder"
+        app:layout_constraintVertical_bias="0.9"
+        app:layout_constraintStart_toEndOf="@id/sensorStatusImg"
+
+        android:src="@drawable/list_item_text_background"/>
+    <TextView
+        android:id="@+id/txtSendotStatusLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/sensorStatusTextHolder"
+        app:layout_constraintTop_toTopOf="@id/sensorStatusTextHolder"
+        app:layout_constraintBottom_toBottomOf="@id/sensorStatusTextHolder"
+        android:textSize="12sp"
+        android:fontFamily="@font/font_reg"
+        android:textColor="@color/white"
+        android:layout_marginStart="10dp"
+        android:text="Door" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/txtSendotStatusLabel"
+        app:layout_constraintTop_toTopOf="@id/txtSendotStatusLabel"
+        app:layout_constraintBottom_toBottomOf="@id/txtSendotStatusLabel"
+        android:textSize="12sp"
+        android:textColor="#a1a1a1"
+        android:layout_marginStart="3dp"
+        app:showIfHasStatus="@{sensorData}"
+        tools:text="is opened"
+        android:fontFamily="@font/font_italic"
+        app:sensorStatus="@{sensorData}" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="sensorData"
+            type="com.example.luckyleaf.dataholders.LeafSensor"/>
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <TextView
+        android:id="@+id/txtSensorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@{sensorData.sensorName.toUpperCase()}"
+        android:textColor="@{sensorData.statusAsColor}"
+        android:textSize="30sp"
+        tools:text="FRONT DOOR"
+        tools:textColor="@color/unlocked_color"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sensorStatusImg"
+        app:layout_constraintVertical_bias="0.85"
+        android:fontFamily="@font/font_bold"/>
+
+    <ImageView
+        android:id="@+id/sensorStatusImg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_bias="0.45"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintDimensionRatio="48:48"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:src="@drawable/sensor_mode_unlocked"
+        app:sensorStatus="@{sensorData}"/>
+
+    <TextView
+        android:id="@+id/txtStatusLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/sensorStatusImg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.15"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="STATUS"
+        android:fontFamily="@font/font_italic"
+        android:textColor="@{sensorData.statusAsColor}"
+        tools:textColor="@color/unlocked_color"
+        android:textSize="20sp"/>
+    <TextView
+        android:id="@+id/txtSensorStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/txtStatusLabel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="@{sensorData.statusAsString.toUpperCase()}"
+        android:textColor="@{sensorData.statusAsColor}"
+        android:textSize="30sp"
+        tools:text="Front door"
+        android:fontFamily="@font/font_bold"
+        tools:textColor="@color/unlocked_color"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/txtSensorStatus">
+        <TextView
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtSensorStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/locked_color"
+            android:textSize="20sp"
+            android:fontFamily="@font/font_reg"
+            android:text="Last update : "/>
+    <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtSensorStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/locked_color"
+        tools:text="12:52"
+        android:textSize="20sp"
+        app:showIfHasStatus="@{sensorData}"
+        android:text="@{sensorData.getTimeStampAsString()}"/>
+    </LinearLayout>
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H,64:188"
+        app:layout_constraintHeight_percent="0.09"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/logo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

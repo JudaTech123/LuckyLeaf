@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+    <variable
+        name="sensorData"
+        type="com.example.luckyleaf.dataholders.LeafSensor"/>
+    <variable
+        name="sensorIndex"
+        type="Integer"/>
+        <variable
+            name="marked"
+            type="Boolean"/>
+        <variable
+            name="itemClick"
+            type="com.example.luckyleaf.adapter.SettingsViewHolder.SettingsItemClickCallback"/>
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@{marked ? @color/purple_200 : @color/white}"
+    tools:background="#FF8800"
+    android:onClick="@{()->itemClick.sensorClicked(sensorData,sensorIndex)}"
+    android:clickable="true"
+    android:focusable="true">
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide_line_half"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintGuide_percent="0.5"
+        android:orientation="vertical"/>
+    <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/guide_line_half"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@{sensorData.sensorName}"
+        />
+    <TextView
+        app:layout_constraintStart_toEndOf="@id/guide_line_half"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@{sensorData.mqttTopic}"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

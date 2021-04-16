@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_nav_graph.xml"
+    app:startDestination="@id/startFragment">
+    <fragment
+        android:id="@+id/startFragment"
+        android:name="com.example.luckyleaf.fragments.SensorListFragment"
+        tools:layout="start">
+        <action
+            android:id="@+id/action_startFragment_to_sensorScreen"
+            app:destination="@id/sensorScreen" />
+    </fragment>
+    <fragment
+        android:id="@+id/sensorScreen"
+        android:name="com.example.luckyleaf.fragments.SensorFragment"/>
+    <fragment android:id="@+id/settingsScreen"
+        android:name="com.example.luckyleaf.fragments.SettingsFragment"/>
+    <action
+        android:id="@+id/action_startFragment_to_settingsScreen"
+        app:destination="@id/settingsScreen" />
+</navigation>

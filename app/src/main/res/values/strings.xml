@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">LuckyLeaf</string>
+    <string name="sensor_list_status_text">Door is %s</string>
+</resources>
