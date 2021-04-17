@@ -16,12 +16,29 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        config {
+            keyAlias 'LuckyLeaf'
+            keyPassword 'LuckyLeaf'
+            storeFile file('keystore/key.jks')
+            storePassword 'LuckyLeaf'
+        }
+    }
+
     dataBinding {
         enabled true
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.config
+            minifyEnabled false
+            debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            debuggable true
+            signingConfig signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
