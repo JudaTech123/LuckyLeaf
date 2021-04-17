@@ -28,6 +28,72 @@ public class LeafSensor {
     boolean     active;
     @ColumnInfo(name = "updateDate")
     long     updateDate;
+    @ColumnInfo(name = "timeAllowedUnlockInMin")
+    long     timeAllowedUnlockInMin;
+    @ColumnInfo(name = "timeInDayToCheckHour")
+    long     timeInDayToCheckHour;
+    @ColumnInfo(name = "timeInDayToCheckMin")
+    long     timeInDayToCheckMin;
+    @ColumnInfo(name = "timeAllowedUnlockActive")
+    boolean     timeAllowedUnlockActive;
+    @ColumnInfo(name = "timeInDayToChecActive")
+    boolean     timeInDayToChecActive;
+
+    public void setTimeAllowedUnlockActive(boolean timeAllowedUnlockActive) {
+        this.timeAllowedUnlockActive = timeAllowedUnlockActive;
+    }
+
+    public void setTimeInDayToChecActive(boolean timeInDayToChecActive) {
+        this.timeInDayToChecActive = timeInDayToChecActive;
+    }
+
+    public boolean isTimeAllowedUnlockActive() {
+        return timeAllowedUnlockActive;
+    }
+
+    public boolean isTimeInDayToChecActive() {
+        return timeInDayToChecActive;
+    }
+
+    public void setTimeInDayToCheckMin(long timeInDayToCheckMin) {
+        this.timeInDayToCheckMin = timeInDayToCheckMin;
+    }
+
+    public long getTimeAllowedUnlockInMin() {
+        return timeAllowedUnlockInMin;
+    }
+
+    public String getTimeAllowedUnlockInMinToStr() {
+        if (timeAllowedUnlockInMin<=0) return "";
+        return String.valueOf(timeAllowedUnlockInMin);
+    }
+
+    public String getTimeCheckToStr() {
+        return String.format("%02d:%02d",timeInDayToCheckHour,timeInDayToCheckMin);
+    }
+
+
+    public long getTimeInDayToCheckHour() {
+        return timeInDayToCheckHour;
+    }
+
+    public long getTimeInDayToCheckMin() {
+        return timeInDayToCheckMin;
+    }
+
+    public void setTimeInDayToCheckHour(long timeInDayToCheckHour) {
+        this.timeInDayToCheckHour = timeInDayToCheckHour;
+    }
+
+    public void setTimeInDayToCheck(int timeInDayToCheckHour, int timeInDayToCheckHourMin) {
+        this.timeInDayToCheckHour = timeInDayToCheckHour;
+        this.timeInDayToCheckMin = timeInDayToCheckHourMin;
+    }
+
+    public void setTimeAllowedUnlockInMin(long timeAllowedUnlockInMin) {
+        this.timeAllowedUnlockInMin = timeAllowedUnlockInMin;
+    }
+
     @Ignore
     String     strStatus = "";
 
@@ -149,6 +215,19 @@ public class LeafSensor {
                 return strStatus;
         }
     }
+    public boolean isSameStatus(String strStatus)
+    {
+        LeafStatus tmpStatus = LeafStatus.unknown;
+        if (strStatus.equalsIgnoreCase("open"))
+            tmpStatus = LeafStatus.open;
+        else if (strStatus.equalsIgnoreCase("locked"))
+            tmpStatus = LeafStatus.locked;
+        else if (strStatus.equalsIgnoreCase("unlocked"))
+            tmpStatus = LeafStatus.unlocked;
+        else if (strStatus.equalsIgnoreCase("alarm"))
+            tmpStatus = LeafStatus.alarm;
+        return tmpStatus.equals(status);
+    }
     public void processStatus(String strStatus)
     {
         this.strStatus = strStatus;
@@ -176,13 +255,18 @@ public class LeafSensor {
         this.active = active;
     }
 
-    public LeafSensor(String mqttTopic, String sensorName,LeafStatus status,long updateDate,boolean active)
+    public LeafSensor(String mqttTopic, String sensorName,LeafStatus status,long updateDate,boolean active,long timeAllowedUnlockInMin,long timeInDayToCheckHour,long timeInDayToCheckMin,boolean timeAllowedUnlockActive,boolean timeInDayToChecActive)
     {
         this.mqttTopic = mqttTopic;
         this.sensorName = sensorName;
         this.active = active;
         this.status = status;
         this.updateDate = updateDate;
+        this.timeInDayToCheckMin = timeInDayToCheckMin;
+        this.timeInDayToCheckHour = timeInDayToCheckHour;
+        this.timeAllowedUnlockInMin = timeAllowedUnlockInMin;
+        this.timeAllowedUnlockActive = timeAllowedUnlockActive;
+        this.timeInDayToChecActive = timeInDayToChecActive;
         switch (status)
         {
             case open:

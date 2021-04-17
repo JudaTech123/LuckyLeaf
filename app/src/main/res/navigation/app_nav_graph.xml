@@ -17,7 +17,12 @@
         android:name="com.example.luckyleaf.fragments.SensorFragment"/>
     <fragment android:id="@+id/settingsScreen"
         android:name="com.example.luckyleaf.fragments.SettingsFragment"/>
+    <fragment android:id="@+id/sensorSettingScreen"
+        android:name="com.example.luckyleaf.fragments.SensorSettingFragment"/>
     <action
         android:id="@+id/action_startFragment_to_settingsScreen"
         app:destination="@id/settingsScreen" />
+    <action
+        android:id="@+id/action_startFragment_to_sensorsettingsScreen"
+        app:destination="@id/sensorSettingScreen" />
 </navigation>

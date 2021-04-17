@@ -5,13 +5,17 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -20,11 +24,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.dataholders.LeafStatus;
 import com.example.luckyleaf.dataholders.MqttMessage;
 import com.example.luckyleaf.network.MqqtApi;
 import com.example.luckyleaf.repo.SensorRepo;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 import static androidx.core.app.NotificationCompat.PRIORITY_MAX;
 
@@ -51,6 +58,63 @@ public class BackGroundService extends LifecycleService {
         return channelId;
     }
 
+    private void notifyAlarm(@NonNull LeafSensor sensor, String Notifymessage)
+    {
+        if (notificationManager!=null)
+        {
+            String message = sensor.getSensorName() + " " + Notifymessage;
+            if (channelID.equals(""))
+                channelID = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
+            // Create an Intent for the activity you want to start
+            Intent resultIntent = new Intent(BackGroundService.this, MainActivity.class);
+            resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(BackGroundService.this, channelID);
+            Notification notification = notificationBuilder.setOngoing(false)
+                    .setSmallIcon(R.drawable.logo_img)
+                    .setContentTitle(message)
+                    .setWhen(System.currentTimeMillis())
+                    .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                    .setAutoCancel(true)
+                    .setChannelId(channelID)
+                    .setContentIntent(PendingIntent.getActivity(BackGroundService.this,0,resultIntent,0))
+                    .build();
+            notificationManager.notify((int)System.currentTimeMillis() - 1000000,notification);
+            mp.start();
+        }
+    }
+    ArrayList<LeafSensor> sensors;
+    class TimerTracker extends BroadcastReceiver
+    {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            synchronized (sensorUpdate) {
+                Calendar now = Calendar.getInstance();
+                long currTime = now.getTimeInMillis();
+                int currHour = now.get(Calendar.HOUR_OF_DAY);
+                int currMinute = now.get(Calendar.MINUTE);
+
+                //check
+                for (LeafSensor sensor : sensors) {
+                    if (!sensor.isActive()) continue;
+                    if (sensor.isTimeAllowedUnlockActive() && sensor.getTimeAllowedUnlockInMin() > 0 && sensor.getStatus() == LeafStatus.unlocked) {
+                        long TimeInMin = sensor.getTimeAllowedUnlockInMin() * 60_000;//convert to mili
+                        if (currTime - TimeInMin >= sensor.getUpdateDate()) {
+                            notifyAlarm(sensor, "Unlock too long");
+                            continue;
+                        }
+                    }
+                    if (sensor.isTimeInDayToChecActive()) {
+                        if (sensor.getTimeInDayToCheckHour() == currHour && sensor.getTimeInDayToCheckMin() == currMinute)
+                            notifyAlarm(sensor, "Unlock after set hour");
+                    }
+                }
+            }
+        }
+    }
+    Object sensorUpdate = new Object();
+    TimerTracker myTimer = new TimerTracker();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -59,16 +123,23 @@ public class BackGroundService extends LifecycleService {
         mp = MediaPlayer.create(this,R.raw.silentping);
         if (PrefsHelper.getInstance().getMqttUrl().length()>0)
             connectToMqtt();
+        IntentFilter mTime = new IntentFilter(Intent.ACTION_TIME_TICK);
+        registerReceiver(myTimer, mTime);
+        SensorRepo.getInstane().askUpdates().observe(this, new Observer<List<LeafSensor>>() {
+            @Override
+            public void onChanged(List<LeafSensor> sensorList) {
+                synchronized (sensorUpdate)
+                {
+                    sensors = new ArrayList<>(sensorList);
+                }
+            }
+        });
     }
 
     public static final String RECONNECT_MQTT = "CONNECT";
     public static final String DISONNECT_MQTT = "DISCONNECT";
     public static final String IN_FRONT = "IN_FRONT";
     private boolean inFront = false;
-    private void fff()
-    {
-
-    }
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
@@ -127,51 +198,28 @@ public class BackGroundService extends LifecycleService {
             @Override
             public void onChanged(Boolean aBoolean) {
                 connectStatus.removeObserver(this);
-                Log.d("juda","connectToMqtt = " + aBoolean);
-                if (aBoolean)
-                {
-                    ArrayList<LeafSensor> sensors = SensorRepo.getInstane().getSensors();
-                    if (sensors!=null)
-                    {
-                        for (LeafSensor sensor : sensors)
-                        {
-                            LiveData<MqttMessage> data = MqqtApi.getInstance().subscribe(sensor.getMqttTopic());
-                            data.observe(BackGroundService.this, new Observer<MqttMessage>() {
-                                @Override
-                                public void onChanged(MqttMessage s) {
-                                    boolean soundAlarm = SensorRepo.getInstane().updateSensor(s);
-                                    if (!inFront)
-                                    {
-                                        Log.d("juda","topic = " + s.getTopic() + " message = " + s.getMessage());
-                                        if (soundAlarm)
-                                        {
-                                            LeafSensor leafSensor = SensorRepo.getInstane().getSensor(s.getTopic());
-                                            if (notificationManager!=null && leafSensor!=null)
-                                            {
-                                                String message = leafSensor.getSensorName() + " " + s.getMessage();
-                                                if (channelID.equals(""))
-                                                    channelID = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
-                                                // Create an Intent for the activity you want to start
-                                                Intent resultIntent = new Intent(BackGroundService.this, MainActivity.class);
-                                                resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                                                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(BackGroundService.this, channelID);
-                                                Notification notification = notificationBuilder.setOngoing(false)
-                                                        .setSmallIcon(R.drawable.logo_img)
-                                                        .setContentTitle(message)
-                                                        .setWhen(System.currentTimeMillis())
-                                                        .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                                                        .setAutoCancel(true)
-                                                        .setChannelId(channelID)
-                                                        .setContentIntent(PendingIntent.getActivity(BackGroundService.this,0,resultIntent,0))
-                                                        .build();
-                                                notificationManager.notify((int)System.currentTimeMillis() - 1000000,notification);
-                                                mp.start();
+                synchronized (sensorUpdate) {
+                    Log.d("juda", "connectToMqtt = " + aBoolean);
+                    if (aBoolean) {
+                        sensors = SensorRepo.getInstane().getSensors();
+                        if (sensors != null) {
+                            for (LeafSensor sensor : sensors) {
+                                LiveData<MqttMessage> data = MqqtApi.getInstance().subscribe(sensor.getMqttTopic());
+                                data.observe(BackGroundService.this, new Observer<MqttMessage>() {
+                                    @Override
+                                    public void onChanged(MqttMessage s) {
+                                        boolean soundAlarm = SensorRepo.getInstane().updateSensor(s);
+                                        if (!inFront) {
+                                            Log.d("juda", "topic = " + s.getTopic() + " message = " + s.getMessage());
+                                            if (soundAlarm) {
+                                                LeafSensor leafSensor = SensorRepo.getInstane().getSensor(s.getTopic());
+                                                if (leafSensor != null)
+                                                    notifyAlarm(leafSensor, leafSensor.getStatusAsString());
                                             }
                                         }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
                     }
                 }

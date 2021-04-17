@@ -47,7 +47,10 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
         SensorViewHolder.SensorPressedEditCallback  editCallback = new SensorViewHolder.SensorPressedEditCallback() {
             @Override
             public void sensorClicked(LeafSensor sensor, int index) {
-
+                NavController navController = Navigation.findNavController(getActivity(), R.id.host_fragment);
+                Bundle args = new Bundle();
+                args.putString("LeafSensor", sensor.getMqttTopic());
+                navController.navigate(R.id.action_startFragment_to_sensorsettingsScreen, args, null);
             }
         };
         adapter = new SensorAdapter(requireContext(), SensorRepo.getInstane().getSensors(), openFullScreen, switchCallback, editCallback);

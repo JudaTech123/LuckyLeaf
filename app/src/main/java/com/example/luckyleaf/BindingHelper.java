@@ -36,6 +36,18 @@ public class BindingHelper {
         }
     }
 
+    @BindingAdapter("statusActive")
+    public static void statusActive(ImageView statusImg, boolean active)
+    {
+        if (statusImg!=null)
+        {
+            if (active)
+                statusImg.setImageResource(R.drawable.track_active);
+            else
+                statusImg.setImageResource(R.drawable.track_notactive);
+        }
+    }
+
     @BindingAdapter("isSoundActive")
     public static void markSoundStatus(ImageView statusImg, LeafSensor sensor)
     {

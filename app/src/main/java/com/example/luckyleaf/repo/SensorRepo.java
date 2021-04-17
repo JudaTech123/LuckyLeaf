@@ -86,12 +86,18 @@ public class SensorRepo {
     public boolean updateSensor(MqttMessage msg)
     {
         LeafSensor sensor = getSensor(msg.getTopic());
-        if (sensor!=null)
-            sensor.processStatus(msg.getMessage());
+        if (sensor==null)
+            return false;
+        String statusStr = msg.getMessage();
+        if (sensor.isSameStatus(statusStr))
+            return false;
+        sensor.processStatus(statusStr);
         myApp.getSelf().getDbHandler().post(new Runnable() {
             @Override
             public void run() {
-                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),System.currentTimeMillis(),sensor.getSensorName(),sensor.isActive(),sensor.getMqttTopic());
+                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),System.currentTimeMillis(),sensor.getSensorName(),sensor.isActive(),
+                        sensor.getTimeAllowedUnlockInMin(),sensor.getTimeInDayToCheckHour(),sensor.getTimeInDayToCheckMin(),sensor.isTimeAllowedUnlockActive(),
+                        sensor.isTimeInDayToChecActive(),sensor.getMqttTopic());
             }
         });
         return sensor.getStatus() == LeafStatus.alarm;
@@ -102,7 +108,9 @@ public class SensorRepo {
         myApp.getSelf().getDbHandler().post(new Runnable() {
             @Override
             public void run() {
-                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),sensor.getUpdateDate(),sensor.getSensorName(),sensor.isActive(),sensor.getMqttTopic());
+                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),sensor.getUpdateDate(),sensor.getSensorName(),sensor.isActive(),
+                        sensor.getTimeAllowedUnlockInMin(),sensor.getTimeInDayToCheckHour(),sensor.getTimeInDayToCheckMin(),sensor.isTimeAllowedUnlockActive(),
+                        sensor.isTimeInDayToChecActive(),sensor.getMqttTopic());
             }
         });
         return sensor.getStatus() == LeafStatus.alarm;

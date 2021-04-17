@@ -70,7 +70,8 @@
         android:src="@drawable/ic_item_drawer"
         app:layout_constraintTop_toTopOf="@id/sensorName"
         app:layout_constraintEnd_toEndOf="@id/statusLine"
-        app:layout_constraintBottom_toBottomOf="@id/sensorName" />
+        app:layout_constraintBottom_toBottomOf="@id/sensorName"
+        android:onClick="@{()->editCallback.sensorClicked(sensorData,sensorIndex)}"/>
     <ImageView
         android:id="@+id/statusLine"
         android:layout_width="match_parent"
