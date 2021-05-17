@@ -12,7 +12,29 @@ import com.example.luckyleaf.R;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
-
+//data saved on sensor in mobile for local usage
+//status : open / locked / unlocked / alarm
+//mqttTopic : to what we do subscribe / publish
+//sensorName : the sensor name we show in the list
+//active : if mobile should respond to mqtt messages now
+//updateDate : last time we got status change
+//**settings that tell mobile how to handle status changes
+//timeAllowedUnlockInMin : how much time sensor stays in unlocked before starting sound
+//timeInDayToCheckHour : what hour to check is sensor is unlocked
+//timeInDayToCheckMin : what min to check is sensor is unlocked
+//timeAllowedUnlockActive : should check "timeAllowedUnlockInMin"
+//timeInDayToChecActive : should check "timeAllowedUnlockInMin"
+//**settings that tell sensor how to handle status changes. if 0x02 || 0x08 || 0x020 are not raised sensor should not send data to server
+//timeUntilUnlockBecomesAlarm : time until sensor changes status from unlock to alarm in sec
+//sensorSettings :
+//                  1  0x01 - sensor should
+//                  2  0x02 - sensor should send unlock to mobile
+//                  4  0x04 - sensor should
+//                  8  0x08 - sensor should send to mobile...
+//                  16 0x10 - sensor should
+//                  32 0x20 - sensor should send to mobile...
+//                  64 0x40 - monitor
+//sensorSettingsJson : {"timeAllowedUnlockInMin":5,"timeInDayToCheckHour":10,"timeInDayToCheckMin":10,"timeAllowedUnlockActive":0,"timeInDayToChecActive":0,"timeUntilUnlockBecomesAlarm":30,"sensorSettings":17}
 @Entity
 public class LeafSensor {
     @PrimaryKey(autoGenerate = true)
@@ -38,6 +60,16 @@ public class LeafSensor {
     boolean     timeAllowedUnlockActive;
     @ColumnInfo(name = "timeInDayToChecActive")
     boolean     timeInDayToChecActive;
+    @Ignore
+    boolean     editMode;
+
+    public boolean isEditMode() {
+        return editMode;
+    }
+
+    public void setEditMode(boolean editMode) {
+        this.editMode = editMode;
+    }
 
     public void setTimeAllowedUnlockActive(boolean timeAllowedUnlockActive) {
         this.timeAllowedUnlockActive = timeAllowedUnlockActive;
@@ -117,11 +149,24 @@ public class LeafSensor {
 
     public String getTimeStampAsString()
     {
-        Calendar statusTime = Calendar.getInstance();
-        statusTime.setTimeInMillis(updateDate);
-        SimpleDateFormat formatter = new SimpleDateFormat(isCurrentDay(statusTime) ? SHORT_DATE_TIME_FORMAT : FULL_DATE_TIME_FORMAT, Locale.ENGLISH);
-        return formatter.format(statusTime.getTime());
-
+        Calendar now = Calendar.getInstance();
+        long timePassed = (now.getTimeInMillis() - updateDate)/1000;
+        if (timePassed<60)
+        {
+            return timePassed + " sec";
+        }
+        timePassed/=60;//mintues
+        if (timePassed<60)
+        {
+            return timePassed + " min";
+        }
+        timePassed/=60;//hours
+        if (timePassed<24)
+        {
+            return timePassed + " hours";
+        }
+        timePassed/=24;//hours
+        return timePassed + " days";
     }
     public long getUpdateDate() {
         return updateDate;
@@ -193,6 +238,23 @@ public class LeafSensor {
             case unlocked:
             case alarm:
                 return R.drawable.sensor_mode_unlocked;
+            default:
+                return R.drawable.sensor_mode_undefined;
+        }
+    }
+
+    public int getLockStatusAsImage()
+    {
+        if (!active)
+            return R.drawable.sensor_mode_undefined;
+        switch (status)
+        {
+            case locked:
+                return R.drawable.door_locked;
+            case unlocked:
+            case alarm:
+            case open:
+                return R.drawable.door_unlocked;
             default:
                 return R.drawable.sensor_mode_undefined;
         }

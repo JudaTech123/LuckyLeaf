@@ -1,17 +1,16 @@
 package com.example.luckyleaf.adapter;
 
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.databinding.ViewDataBinding;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.luckyleaf.databinding.ItemSensorBinding;
+import com.example.luckyleaf.databinding.ItemSensorOpenBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
 
-public class SensorViewHolder extends SensorListItem{
-    final ItemSensorBinding dataBinding;
-    public SensorViewHolder(@NonNull ItemSensorBinding dataBinding) {
+public class SensorEditViewHolder extends SensorListItem{
+    final ItemSensorOpenBinding dataBinding;
+    public SensorEditViewHolder(@NonNull ItemSensorOpenBinding dataBinding) {
         super(dataBinding);
         this.dataBinding = dataBinding;
     }
@@ -21,6 +20,4 @@ public class SensorViewHolder extends SensorListItem{
     {
         return dataBinding;
     }
-
-
 }

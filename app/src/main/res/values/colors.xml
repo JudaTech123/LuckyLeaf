@@ -10,10 +10,10 @@
     <color name="open_color">#FF057ac5</color>
     <color name="open_color_fade_start">#88057ac5</color>
     <color name="open_color_fade_end">#229cc5df</color>
-    <color name="unlocked_color">#FFFF0000</color>
-    <color name="locked_color">#FF49a456</color>
+    <color name="unlocked_color">#ff9796</color>
+    <color name="locked_color">#01fe91</color>
     <color name="locked_color_fade_start">#8849a456</color>
     <color name="locked_color_fade_end">#228bd496</color>
-    <color name="undifned_color">#FF888888</color>
+    <color name="undifned_color">#00bb67</color>
     <color name="background">#FF161515</color>
 </resources>

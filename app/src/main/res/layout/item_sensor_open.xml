@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable
+            name="sensorData"
+            type="com.example.luckyleaf.dataholders.LeafSensor"/>
+        <variable
+            name="itemClicked"
+            type="com.example.luckyleaf.adapter.SensorAdapter.SensorPressedCallback"/>
+
+        <variable
+            name="sensorIndex"
+            type="Integer"/>
+
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:background="#480088">
+
+        <ImageView
+            android:id="@+id/holder"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/item_open_background"
+            android:layout_margin="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <ImageView
+            android:id="@+id/imgShortLogo"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            app:layout_constraintStart_toStartOf="@id/holder"
+            app:layout_constraintTop_toTopOf="@id/holder"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/short_logo"/>
+        <TextView
+            android:id="@+id/sensorName"
+            app:layout_constraintStart_toEndOf="@id/imgShortLogo"
+            app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+            app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
+            app:layout_constraintEnd_toStartOf="@id/sensorStatusImg"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="10dp"
+            android:textColor="#FFFFFFFF"
+            android:gravity="start|center"
+            tools:text="Back Door"
+            android:fontFamily="@font/font_italic"
+            android:textSize="18sp"
+            android:text="@{sensorData.sensorName}"/>
+
+        <ImageView
+            android:id="@+id/sensorStatusImg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/txtSendotStatusLabel"
+            app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+            app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
+            tools:src="@drawable/door_locked"
+            app:sensorLockStatus="@{sensorData}"
+            android:layout_marginEnd="5dp" />
+
+        <TextView
+            android:id="@+id/txtSendotStatusLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@id/sensorConnectionStatusImg"
+            app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+            android:textSize="10sp"
+            android:fontFamily="@font/font_reg"
+            android:textColor="@color/white"
+            android:layout_marginEnd="10dp"
+            app:sensorStatus="@{sensorData}"
+            android:text="Door" />
+
+        <TextView
+            app:layout_constraintStart_toStartOf="@id/txtSendotStatusLabel"
+            app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/white"
+            tools:text="12:52"
+            android:textSize="10sp"
+            app:showIfHasStatus="@{sensorData}"
+            android:text="@{sensorData.getTimeStampAsString()}"/>
+
+        <ImageView
+            android:id="@+id/sensorConnectionStatusImg"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            app:layout_constraintEnd_toStartOf="@id/imgSettings"
+            app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+            app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
+            tools:src="@drawable/sensor_mode_undefined"
+            app:sensorStatus="@{sensorData}"
+            android:layout_marginEnd="10dp" />
+
+        <ImageView
+            android:id="@+id/imgSettings"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:src="@drawable/settings"
+            app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+            app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
+            app:layout_constraintEnd_toEndOf="@id/holder"
+            android:layout_marginEnd="10dp"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,2)}"/>
+        <TextView
+            android:id="@+id/txtNotifaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/imgShortLogo"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:layout_marginTop="10dp"
+            android:text="Mobile notifaction"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <ImageView
+            android:id="@+id/imgNotifaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txtNotifaction"
+            app:layout_constraintBottom_toBottomOf="@id/txtNotifaction"
+            app:layout_constraintStart_toEndOf="@id/txtNotifaction"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/track_active"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
+
+        <TextView
+            android:id="@+id/txtSound"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtNotifaction"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:layout_marginTop="10dp"
+            android:text="Sound notifaction"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <ImageView
+            android:id="@+id/imgSoundNotifaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txtSound"
+            app:layout_constraintBottom_toBottomOf="@id/txtSound"
+            app:layout_constraintStart_toEndOf="@id/txtSound"
+            android:layout_marginStart="10dp"
+            android:src="@drawable/track_active"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
+
+        <TextView
+            android:id="@+id/txtTimedMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtSound"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:layout_marginTop="10dp"
+            android:text="Sound notifaction"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <ImageView
+            android:id="@+id/imgTimedMobileNotifaction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txtTimedMobile"
+            app:layout_constraintBottom_toBottomOf="@id/holder"
+            app:layout_constraintStart_toEndOf="@id/txtTimedMobile"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/track_active"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,5)}"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

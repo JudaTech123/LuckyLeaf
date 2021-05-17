@@ -23,6 +23,20 @@ public class BindingHelper {
             statusImg.setImageResource(sensor.getStatusAsImage());
         }
     }
+    @BindingAdapter("sensorLockStatus")
+    public static void sensorLockStatus(ImageView statusImg, LeafSensor sensor)
+    {
+        if (statusImg!=null && sensor!=null)
+        {
+            int imageID = sensor.getLockStatusAsImage();
+            if (imageID==R.drawable.sensor_mode_undefined)
+                statusImg.setVisibility(View.INVISIBLE);
+            else {
+                statusImg.setVisibility(View.VISIBLE);
+                statusImg.setImageResource(sensor.getLockStatusAsImage());
+            }
+        }
+    }
 
     @BindingAdapter("sensorActive")
     public static void sensorActive(ImageView statusImg, LeafSensor sensor)
@@ -63,10 +77,9 @@ public class BindingHelper {
     @BindingAdapter("sensorStatus")
     public static void sensorStatus(TextView statusText, LeafSensor sensor)
     {
-        String status = "Door";
         if (statusText!=null && sensor!=null)
         {
-            statusText.setText("is " + sensor.getStatusAsString());
+            statusText.setText(sensor.getStatusAsString());
         }
     }
 }
