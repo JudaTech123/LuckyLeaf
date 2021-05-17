@@ -83,24 +83,33 @@ public class SensorRepo {
         return null;
     }
 
-    public boolean updateSensor(MqttMessage msg)
+    /**
+     * this function will try to update the sensor with new message
+     * @param msg       -   msg to parse
+     * @param _sensor   -   sensor effected
+     * @return          -   if sensor was updated
+     */
+    public boolean updateSensor(MqttMessage msg,LeafSensor _sensor)
     {
         LeafSensor sensor = getSensor(msg.getTopic());
+        if (_sensor!=null)
+            sensor = _sensor;
         if (sensor==null)
             return false;
+        final LeafSensor sensorToUpdate = sensor;
         String statusStr = msg.getMessage();
         if (sensor.isSameStatus(statusStr))
             return false;
-        sensor.processStatus(statusStr);
+        sensorToUpdate.processStatus(statusStr);
         myApp.getSelf().getDbHandler().post(new Runnable() {
             @Override
             public void run() {
-                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),System.currentTimeMillis(),sensor.getSensorName(),sensor.isActive(),
-                        sensor.getTimeAllowedUnlockInMin(),sensor.getTimeInDayToCheckHour(),sensor.getTimeInDayToCheckMin(),sensor.isTimeAllowedUnlockActive(),
-                        sensor.isTimeInDayToChecActive(),sensor.getMqttTopic());
+                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),System.currentTimeMillis(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
+                        sensorToUpdate.getTimeAllowedUnlockInMin(),sensorToUpdate.getTimeInDayToCheckHour(),sensorToUpdate.getTimeInDayToCheckMin(),sensorToUpdate.isTimeAllowedUnlockActive(),
+                        sensorToUpdate.isTimeInDayToChecActive(),sensorToUpdate.getMqttTopic());
             }
         });
-        return sensor.getStatus() == LeafStatus.alarm;
+        return true;
     }
 
     public boolean updateSensor(LeafSensor sensor)
@@ -114,6 +123,10 @@ public class SensorRepo {
             }
         });
         return sensor.getStatus() == LeafStatus.alarm;
+    }
+    public void updateSensorList(ArrayList<LeafSensor> sensorList)
+    {
+        sensors = sensorList;
     }
     public LiveData<List<LeafSensor>> askUpdates()
     {

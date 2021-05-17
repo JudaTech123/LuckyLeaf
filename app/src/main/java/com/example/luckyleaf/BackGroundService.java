@@ -1,5 +1,6 @@
 package com.example.luckyleaf;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,7 +13,9 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.media.MediaPlayer;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -58,11 +61,10 @@ public class BackGroundService extends LifecycleService {
         return channelId;
     }
 
-    private void notifyAlarm(@NonNull LeafSensor sensor, String Notifymessage)
+    private void notifyAlarm(String message)
     {
         if (notificationManager!=null)
         {
-            String message = sensor.getSensorName() + " " + Notifymessage;
             if (channelID.equals(""))
                 channelID = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
             // Create an Intent for the activity you want to start
@@ -83,38 +85,14 @@ public class BackGroundService extends LifecycleService {
             mp.start();
         }
     }
-    ArrayList<LeafSensor> sensors;
-    class TimerTracker extends BroadcastReceiver
+    private void notifyAlarm(@NonNull LeafSensor sensor, String Notifymessage)
     {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            synchronized (sensorUpdate) {
-                Calendar now = Calendar.getInstance();
-                long currTime = now.getTimeInMillis();
-                int currHour = now.get(Calendar.HOUR_OF_DAY);
-                int currMinute = now.get(Calendar.MINUTE);
-
-                //check
-                for (LeafSensor sensor : sensors) {
-                    if (!sensor.isActive()) continue;
-                    if (sensor.isTimeAllowedUnlockActive() && sensor.getTimeAllowedUnlockInMin() > 0 && sensor.getStatus() == LeafStatus.unlocked) {
-                        long TimeInMin = sensor.getTimeAllowedUnlockInMin() * 60_000;//convert to mili
-                        if (currTime - TimeInMin >= sensor.getUpdateDate()) {
-                            notifyAlarm(sensor, "Unlock too long");
-                            continue;
-                        }
-                    }
-                    if (sensor.isTimeInDayToChecActive()) {
-                        if (sensor.getTimeInDayToCheckHour() == currHour && sensor.getTimeInDayToCheckMin() == currMinute)
-                            notifyAlarm(sensor, "Unlock after set hour");
-                    }
-                }
-            }
-        }
+        String message = sensor.getSensorName() + " " + Notifymessage;
+        notifyAlarm(message);
     }
+    final String unlockAlarmKey = "unlockKey";
+    ArrayList<LeafSensor> sensors;
     Object sensorUpdate = new Object();
-    TimerTracker myTimer = new TimerTracker();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -123,14 +101,15 @@ public class BackGroundService extends LifecycleService {
         mp = MediaPlayer.create(this,R.raw.silentping);
         if (PrefsHelper.getInstance().getMqttUrl().length()>0)
             connectToMqtt();
-        IntentFilter mTime = new IntentFilter(Intent.ACTION_TIME_TICK);
-        registerReceiver(myTimer, mTime);
+        //IntentFilter mTime = new IntentFilter(Intent.ACTION_TIME_TICK);
+        //registerReceiver(myTimer, mTime);
         SensorRepo.getInstane().askUpdates().observe(this, new Observer<List<LeafSensor>>() {
             @Override
             public void onChanged(List<LeafSensor> sensorList) {
                 synchronized (sensorUpdate)
                 {
                     sensors = new ArrayList<>(sensorList);
+                    SensorRepo.getInstane().updateSensorList(sensors);
                 }
             }
         });
@@ -139,12 +118,23 @@ public class BackGroundService extends LifecycleService {
     public static final String RECONNECT_MQTT = "CONNECT";
     public static final String DISONNECT_MQTT = "DISCONNECT";
     public static final String IN_FRONT = "IN_FRONT";
+    public static final String SHOW_NOTIFACTION = "SHOW_NOTIFACTION";
+
+    private final String SETTING_SUFFIX = "_settings";
     private boolean inFront = false;
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         if (intent!=null && intent.getExtras()!=null)
         {
+            if (intent.getExtras().containsKey(SHOW_NOTIFACTION))
+            {
+                if (intent!=null && intent.getExtras()!=null && intent.getExtras().containsKey(unlockAlarmKey))
+                {
+                    String title = intent.getExtras().getString(unlockAlarmKey);
+                    notifyAlarm(title);
+                }
+            }
             if (intent.getExtras().containsKey(RECONNECT_MQTT))
             {
                 connectToMqtt();
@@ -191,6 +181,130 @@ public class BackGroundService extends LifecycleService {
             }
         });
     }
+    private void sendSettingsToSensor(String topic,String settingsJson)
+    {
+        MqqtApi.getInstance().publish(topic + SETTING_SUFFIX,settingsJson,true).observe(BackGroundService.this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                if (aBoolean!=null && aBoolean)
+                {
+                    Log.d("juda", "send settings to sensor");
+                }
+            }
+        });
+    }
+    private void processMqttStatusMessage(MqttMessage mqttMessage)
+    {
+        LeafSensor leafSensor = null;
+        synchronized (sensorUpdate)
+        {
+            for (LeafSensor sensorItem : sensors)
+            {
+                if (mqttMessage.getTopic().equals(sensorItem.getMqttTopic())) {
+                    leafSensor = sensorItem;
+                    break;
+                }
+            }
+            if (leafSensor==null) return;
+        }
+        boolean isStatusChanged = SensorRepo.getInstane().updateSensor(mqttMessage,leafSensor);
+        if (!isStatusChanged) return;
+        switch (leafSensor.getStatus())
+        {
+            case alarm:
+                Log.d("juda", "topic = " + mqttMessage.getTopic() + " message = " + mqttMessage.getMessage());
+                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
+                sendSettingsToSensor(mqttMessage.getTopic(),"1234");
+                break;
+            case unlocked:
+                triggerSensorAlramBasedOnTime(leafSensor);
+                break;
+            case open:
+                removeTimers(leafSensor);
+                break;
+        }
+    }
+
+    /**
+     * This function will go over the sensor settings and set a timer based on them
+     * @param leafSensor
+     */
+    private void triggerSensorAlramBasedOnTime(LeafSensor leafSensor)
+    {
+
+        AlarmManager alarmMgr;
+        if (leafSensor.isTimeAllowedUnlockActive() && leafSensor.getTimeAllowedUnlockInMin()>0)
+        {
+            PendingIntent alarmIntent;
+
+            alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(getApplicationContext(), TimedBroadcast.class);
+            Bundle args = new Bundle();
+            intent.putExtra(unlockAlarmKey,leafSensor.getSensorName() +  " Open too long");
+            alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)leafSensor.getDbID(), intent, 0);
+
+            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() +
+                            leafSensor.getTimeAllowedUnlockInMin()*1000, alarmIntent);
+        }
+        if (leafSensor.isTimeInDayToChecActive())
+        {
+            long alarmHour = leafSensor.getTimeInDayToCheckHour();
+            long alarmMinute = leafSensor.getTimeInDayToCheckMin();
+            Calendar now = Calendar.getInstance();
+            Calendar alarmTimer = Calendar.getInstance();
+            alarmTimer.set(Calendar.HOUR_OF_DAY, (int)alarmHour);
+            alarmTimer.set(Calendar.MINUTE, (int)alarmMinute);
+            if (now.after(alarmTimer))
+                alarmTimer.add(Calendar.DAY_OF_MONTH,1);
+
+            PendingIntent alarmIntent;
+            alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+            Intent intent = new Intent(getApplicationContext(), TimedBroadcast.class);
+            alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 100 + (int)leafSensor.getDbID(), intent, 0);
+
+            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    alarmTimer.getTimeInMillis(), alarmIntent);
+        }
+    }
+
+    /**
+     * This function will clear any timers associted withs this sensor
+     * @param leafSensor
+     */
+    private void removeTimers(LeafSensor leafSensor)
+    {
+        AlarmManager alarmMgr;
+        PendingIntent alarmIntent;
+
+        alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        //cancel unlock delay timer
+        Intent intent = new Intent(getApplicationContext(), TimedBroadcast.class);
+        alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)leafSensor.getDbID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmIntent.cancel();
+        alarmMgr.cancel(alarmIntent);
+        //cancel hour : min timer
+        intent = new Intent(getApplicationContext(), TimedBroadcast.class);
+        alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), 100 + (int)leafSensor.getDbID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmIntent.cancel();
+        alarmMgr.cancel(alarmIntent);
+    }
+    private void processMqttSettingsMessage(MqttMessage mqttMessage)
+    {
+        MqqtApi.getInstance().unsubscribe(mqttMessage.getTopic());
+        LeafSensor leafSensor = null;
+        synchronized (sensorUpdate)
+        {
+            for (LeafSensor sensorItem : sensors)
+            {
+                if (mqttMessage.getTopic().equals(sensorItem.getMqttTopic())) {
+                    leafSensor = sensorItem;
+                    break;
+                }
+            }
+            if (leafSensor==null) return;
+        }
+    }
     public void connectToMqtt()
     {
         LiveData<Boolean> connectStatus = MqqtApi.getInstance().connectInitMqqtApi(getApplication(),"tcp://" + PrefsHelper.getInstance().getMqttUrl() + ":1883",null);
@@ -204,21 +318,11 @@ public class BackGroundService extends LifecycleService {
                         sensors = SensorRepo.getInstane().getSensors();
                         if (sensors != null) {
                             for (LeafSensor sensor : sensors) {
+                                LiveData<MqttMessage> settingsData = MqqtApi.getInstance().subscribe(sensor.getMqttTopic() + SETTING_SUFFIX);
                                 LiveData<MqttMessage> data = MqqtApi.getInstance().subscribe(sensor.getMqttTopic());
-                                data.observe(BackGroundService.this, new Observer<MqttMessage>() {
-                                    @Override
-                                    public void onChanged(MqttMessage s) {
-                                        boolean soundAlarm = SensorRepo.getInstane().updateSensor(s);
-                                        if (!inFront) {
-                                            Log.d("juda", "topic = " + s.getTopic() + " message = " + s.getMessage());
-                                            if (soundAlarm) {
-                                                LeafSensor leafSensor = SensorRepo.getInstane().getSensor(s.getTopic());
-                                                if (leafSensor != null)
-                                                    notifyAlarm(leafSensor, leafSensor.getStatusAsString());
-                                            }
-                                        }
-                                    }
-                                });
+
+                                //settingsData.observe(BackGroundService.this, mqttMessage -> processMqttSettingsMessage(mqttMessage));
+                                data.observe(BackGroundService.this, mqttMessage -> processMqttStatusMessage(mqttMessage));
                             }
                         }
                     }

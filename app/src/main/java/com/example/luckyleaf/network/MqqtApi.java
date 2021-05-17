@@ -110,6 +110,32 @@ public class MqqtApi {
         }
         return mqttStatus;
     }
+
+    public LiveData<Boolean> publish(String topic,String message,boolean retained)
+    {
+        MutableLiveData<Boolean> mqttStatus = new MutableLiveData<>();
+        MqttMessage msg = new MqttMessage();
+        msg.setPayload(message.getBytes());
+        msg.setRetained(retained);
+        try {
+            mqttClient.publish(topic,msg).setActionCallback(new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    mqttStatus.postValue(true);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    mqttStatus.postValue(false);
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+            mqttStatus.postValue(null);
+        }
+        return mqttStatus;
+    }
+
     public LiveData<Boolean> unsubscribe(String topic)
     {
         MutableLiveData<Boolean> unsubscribeAnswer = new MutableLiveData<>();
