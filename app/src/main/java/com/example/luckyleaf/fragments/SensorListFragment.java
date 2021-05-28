@@ -1,4 +1,6 @@
 package com.example.luckyleaf.fragments;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +18,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 
+import com.example.luckyleaf.BackGroundService;
 import com.example.luckyleaf.R;
 import com.example.luckyleaf.adapter.DividerItemDecorator;
 import com.example.luckyleaf.adapter.SensorAdapter;
@@ -48,7 +51,15 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 }
                 if (i==3)
                 {
-
+                    sensor.setNotifyMobile(!sensor.isNotifyMobile());
+                }
+                if (i==4)
+                {
+                    sensor.setNotifySensor(!sensor.isNotifySensor());
+                }
+                if (i==5)
+                {
+                    sensor.setTimeAllowedUnlockActive(!sensor.isTimeAllowedUnlockActive());
                 }
                 adapter.notifyItemChanged(index);
                 return;
@@ -72,6 +83,25 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
         DividerItemDecorator simpleDividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(requireContext(),R.drawable.list_didiver));
         dataBinding.sensorList.addItemDecoration(simpleDividerItemDecoration);
         return dataBinding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        view.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Intent mqttService = new Intent(getContext(), BackGroundService.class);
+                mqttService.putExtra("unlockKey","title");
+                mqttService.putExtra(BackGroundService.SHOW_NOTIFACTION, "");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    getActivity().startForegroundService(mqttService);
+                }
+                else
+                    getActivity().startService(mqttService);
+            }
+        },15000);
+
     }
 
     @Override

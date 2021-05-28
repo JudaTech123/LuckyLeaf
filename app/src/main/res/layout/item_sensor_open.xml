@@ -64,6 +64,7 @@
             app:layout_constraintTop_toTopOf="@id/imgShortLogo"
             app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
             tools:src="@drawable/door_locked"
+            android:visibility="invisible"
             app:sensorLockStatus="@{sensorData}"
             android:layout_marginEnd="5dp" />
 
@@ -113,74 +114,277 @@
             app:layout_constraintEnd_toEndOf="@id/holder"
             android:layout_marginEnd="10dp"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,2)}"/>
+
+        <com.example.luckyleaf.customview.AreaBox
+            android:id="@+id/alertBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintDimensionRatio="320:80"
+            android:layout_marginStart="15dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintTop_toBottomOf="@id/imgSettings" />
         <TextView
-            android:id="@+id/txtNotifaction"
+            android:id="@+id/alertBoxTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/imgShortLogo"
+            app:layout_constraintTop_toTopOf="@id/alertBox"
+            app:layout_constraintBottom_toTopOf="@id/alertBox"
+            app:layout_constraintStart_toStartOf="@id/alertBox"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            android:text="Alert configuration"/>
+        <TextView
+            android:id="@+id/txtAlertPrompt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/alertBoxTitle"
+            app:layout_constraintStart_toStartOf="@id/alertBox"
+            app:layout_constraintEnd_toEndOf="@id/alertBox"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:text="Pick what alerts you want to recive:"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+
+        <ImageView
+            android:id="@+id/alertOpen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
+            android:src="@drawable/sensor_mode_open"
+            app:layout_constraintStart_toStartOf="@id/txtAlertPrompt"
+            app:layout_constraintEnd_toStartOf="@id/alertUnLocked"
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+        <ImageView
+            android:id="@+id/alertLocked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
+            android:src="@drawable/sensor_mode_open"
+            app:layout_constraintEnd_toEndOf="@id/txtAlertPrompt"
+            app:layout_constraintStart_toEndOf="@id/alertUnLocked"
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+
+        <ImageView
+            android:id="@+id/alertUnLocked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
+            android:src="@drawable/sensor_mode_open"
+            app:layout_constraintStart_toEndOf="@id/alertOpen"
+            app:layout_constraintEnd_toStartOf="@id/alertLocked"
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+
+        <com.example.luckyleaf.customview.AreaBox
+            android:id="@+id/timeBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintDimensionRatio="320:120"
+            android:layout_marginStart="15dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintTop_toBottomOf="@id/alertBox" />
+        <TextView
+            android:id="@+id/timeBoxTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/timeBox"
+            app:layout_constraintBottom_toTopOf="@id/timeBox"
+            app:layout_constraintStart_toStartOf="@id/timeBox"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            android:text="Timer configuration"/>
+
+        <TextView
+            android:id="@+id/txtTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/edtTimeToBuzz"
+            app:layout_constraintBottom_toBottomOf="@id/edtTimeToBuzz"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:layout_marginStart="10dp"
+            android:text="Time to sound"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <EditText
+            android:id="@+id/edtTimeToBuzz"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.2"
+            app:layout_constraintTop_toBottomOf="@id/timeBoxTitle"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:textSize="14dp"
+            android:inputType="numberSigned"
+            />
+
+        <TextView
+            android:id="@+id/txtTimeBuzzer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/edtTimeToBuzz"
             app:layout_constraintStart_toStartOf="@id/imgShortLogo"
             android:layout_marginTop="10dp"
-            android:text="Mobile notifaction"
+            android:layout_marginStart="10dp"
+            android:text="Buzzer"
             android:textSize="14dp"
             android:textColor="@color/white"
             android:fontFamily="@font/font_reg"
             />
         <ImageView
-            android:id="@+id/imgNotifaction"
+            android:id="@+id/imgTimerBuzzer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/txtNotifaction"
-            app:layout_constraintBottom_toBottomOf="@id/txtNotifaction"
-            app:layout_constraintStart_toEndOf="@id/txtNotifaction"
+            app:layout_constraintTop_toTopOf="@id/txtTimeBuzzer"
+            app:layout_constraintBottom_toBottomOf="@id/txtTimeBuzzer"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:src="@drawable/track_active"
+            android:padding="10dp"
+            tools:src="@drawable/track_active"
+            android:src="@{sensorData.isNotifyMobile() ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
 
         <TextView
-            android:id="@+id/txtSound"
+            android:id="@+id/txtTimerMobile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/txtNotifaction"
+            app:layout_constraintTop_toBottomOf="@id/txtTimeBuzzer"
             app:layout_constraintStart_toStartOf="@id/imgShortLogo"
-            android:layout_marginTop="10dp"
-            android:text="Sound notifaction"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            android:text="Mobile Sound"
             android:textSize="14dp"
             android:textColor="@color/white"
             android:fontFamily="@font/font_reg"
             />
         <ImageView
-            android:id="@+id/imgSoundNotifaction"
+            android:id="@+id/imgTimedMobile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/txtSound"
-            app:layout_constraintBottom_toBottomOf="@id/txtSound"
-            app:layout_constraintStart_toEndOf="@id/txtSound"
+            app:layout_constraintTop_toTopOf="@id/txtTimerMobile"
+            app:layout_constraintBottom_toBottomOf="@id/txtTimerMobile"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:src="@drawable/track_active"
+            android:padding="10dp"
+            tools:src="@drawable/track_active"
+            android:src="@{sensorData.isNotifySensor() ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
 
+        <com.example.luckyleaf.customview.AreaBox
+            android:id="@+id/HourBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintDimensionRatio="320:120"
+            android:layout_marginStart="15dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="15dp"
+            app:layout_constraintTop_toBottomOf="@id/timeBox"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="15dp"/>
+
         <TextView
-            android:id="@+id/txtTimedMobile"
+            android:id="@+id/hourBoxTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/txtSound"
+            app:layout_constraintTop_toTopOf="@id/HourBox"
+            app:layout_constraintBottom_toTopOf="@id/HourBox"
+            app:layout_constraintStart_toStartOf="@id/HourBox"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            android:text="Hourly configuration"/>
+
+        <TextView
+            android:id="@+id/txtHourTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/hourBoxTitle"
+            app:layout_constraintStart_toStartOf="@id/HourBox"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:text="Time in day to sound:"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+
+        <TextView
+            android:id="@+id/txtTimeInDay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txtHourTime"
+            app:layout_constraintStart_toEndOf="@id/txtHourTime"
+            app:layout_constraintEnd_toEndOf="@id/HourBox"
+            android:text="Pick time"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            />
+
+        <TextView
+            android:id="@+id/txtHourBuzzer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtHourTime"
             app:layout_constraintStart_toStartOf="@id/imgShortLogo"
             android:layout_marginTop="10dp"
-            android:text="Sound notifaction"
+            android:layout_marginStart="10dp"
+            android:text="Buzzer"
             android:textSize="14dp"
             android:textColor="@color/white"
             android:fontFamily="@font/font_reg"
             />
         <ImageView
-            android:id="@+id/imgTimedMobileNotifaction"
+            android:id="@+id/imgHourBuzzer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="@id/txtTimedMobile"
-            app:layout_constraintBottom_toBottomOf="@id/holder"
-            app:layout_constraintStart_toEndOf="@id/txtTimedMobile"
+            app:layout_constraintTop_toTopOf="@id/txtHourBuzzer"
+            app:layout_constraintBottom_toBottomOf="@id/txtHourBuzzer"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:layout_marginBottom="10dp"
-            android:src="@drawable/track_active"
-            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,5)}"/>
+            android:padding="10dp"
+            tools:src="@drawable/track_active"
+            android:src="@{sensorData.isNotifyMobile() ? @drawable/track_notactive : @drawable/track_active}"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
+
+        <TextView
+            android:id="@+id/txtHourMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/imgHourBuzzer"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            android:text="Mobile Sound"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <ImageView
+            android:id="@+id/imgHourMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/txtHourMobile"
+            app:layout_constraintBottom_toBottomOf="@id/txtHourMobile"
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
+            android:layout_marginStart="10dp"
+            android:padding="10dp"
+            tools:src="@drawable/track_active"
+            android:src="@{sensorData.isNotifySensor() ? @drawable/track_notactive : @drawable/track_active}"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

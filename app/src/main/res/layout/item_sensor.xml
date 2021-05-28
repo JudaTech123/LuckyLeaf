@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="sensorData"
@@ -14,23 +16,10 @@
 
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:background="#480088">
 
-    <ImageView
-        android:id="@+id/imgShortLogo"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        app:layout_constraintStart_toStartOf="@id/holder"
-        app:layout_constraintTop_toTopOf="@id/holder"
-        app:layout_constraintBottom_toBottomOf="@id/holder"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/short_logo"/>
     <ImageView
         android:id="@+id/holder"
         android:layout_width="match_parent"
@@ -40,63 +29,53 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
     <TextView
         android:id="@+id/sensorName"
-        app:layout_constraintStart_toEndOf="@id/imgShortLogo"
-        app:layout_constraintTop_toTopOf="@id/holder"
-        app:layout_constraintBottom_toBottomOf="@id/holder"
-        app:layout_constraintEnd_toStartOf="@id/sensorStatusImg"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:textColor="#FFFFFFFF"
-        android:gravity="start|center"
-        tools:text="Back Door"
         android:fontFamily="@font/font_italic"
+        android:gravity="start|center"
+        android:text="@{sensorData.sensorName}"
+        android:textColor="#FFFFFFFF"
         android:textSize="18sp"
-        android:text="@{sensorData.sensorName}"/>
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/sensorConnectionStatusImg"
+        app:layout_constraintEnd_toStartOf="@id/sensorStatusImg"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Back Door" />
 
     <ImageView
         android:id="@+id/sensorStatusImg"
         android:layout_width="34dp"
         android:layout_height="34dp"
-        app:layout_constraintEnd_toStartOf="@id/txtSendotStatusLabel"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/txtTimeFromLastUpdate"
+        app:layout_constraintTop_toTopOf="@id/holder"
+        app:layout_constraintBottom_toBottomOf="@id/holder"
         tools:src="@drawable/door_locked"
         app:sensorLockStatus="@{sensorData}"
         android:layout_marginEnd="5dp" />
 
     <TextView
-        android:id="@+id/txtSendotStatusLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/sensorConnectionStatusImg"
-        app:layout_constraintTop_toTopOf="@id/imgShortLogo"
-        android:textSize="10sp"
-        android:fontFamily="@font/font_reg"
+        android:text="@{sensorData.getTimeStampAsString()}"
+        android:id="@+id/txtTimeFromLastUpdate"
         android:textColor="@color/white"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@id/imgSettings"
+        app:layout_constraintTop_toTopOf="@id/sensorConnectionStatusImg"
+        app:layout_constraintBottom_toBottomOf="@id/sensorConnectionStatusImg"
         android:layout_marginEnd="10dp"
-        app:sensorStatus="@{sensorData}"
-        android:text="locked" />
-
-    <TextView
-        app:layout_constraintStart_toStartOf="@id/txtSendotStatusLabel"
-        app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:textColor="@color/white"
-        tools:text="12:52"
-        android:textSize="10sp"
         app:showIfHasStatus="@{sensorData}"
-        android:text="@{sensorData.getTimeStampAsString()}"/>
+        tools:layout_editor_absoluteY="30dp"
+        tools:text="12:52" />
 
     <ImageView
         android:id="@+id/sensorConnectionStatusImg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/imgSettings"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/holder"
         app:layout_constraintBottom_toBottomOf="@id/holder"
         tools:src="@drawable/sensor_mode_undefined"
