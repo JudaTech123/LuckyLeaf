@@ -56,6 +56,18 @@ public class BackGroundService extends LifecycleService {
         NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
         // omitted the LED color
         channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
+        notificationManager.createNotificationChannel(channel);
+        return channelId;
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private String createNotificationChannelNoLockScreen(NotificationManager notificationManager){
+        String channelId = "LuckyleafNoLock";
+        String channelName = "Sensor monitor app no lock";
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
+        // omitted the LED color
+        channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         notificationManager.createNotificationChannel(channel);
         return channelId;
@@ -77,8 +89,9 @@ public class BackGroundService extends LifecycleService {
                     .setContentTitle(message)
                     .setWhen(System.currentTimeMillis())
                     .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                    .setAutoCancel(true)
+                    .setAutoCancel(false)
                     .setChannelId(channelID)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setContentIntent(PendingIntent.getActivity(BackGroundService.this,0,resultIntent,0))
                     .build();
             notificationManager.notify((int)System.currentTimeMillis() - 1000000,notification);
@@ -192,6 +205,7 @@ public class BackGroundService extends LifecycleService {
             }
         });
     }
+
     private void processMqttStatusMessage(MqttMessage mqttMessage)
     {
         LeafSensor leafSensor = null;
