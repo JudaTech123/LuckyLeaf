@@ -157,9 +157,8 @@ public class BackGroundService extends LifecycleService {
     {
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notificationManager==null) return;
-        if (channelID.equals(""))
-            channelID = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelID);
+        String channelIDNoLock = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannelNoLockScreen(notificationManager) : "";
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelIDNoLock);
         Notification notification = notificationBuilder.setOngoing(true)
                 .setSmallIcon(R.drawable.logo_img)
                 .setPriority(PRIORITY_MAX)
@@ -196,6 +195,7 @@ public class BackGroundService extends LifecycleService {
     private void processMqttStatusMessage(MqttMessage mqttMessage)
     {
         LeafSensor leafSensor = null;
+        Log.d("juda", "topic = " + mqttMessage.getTopic() + " message = " + mqttMessage.getMessage());
         synchronized (sensorUpdate)
         {
             for (LeafSensor sensorItem : sensors)
@@ -212,11 +212,8 @@ public class BackGroundService extends LifecycleService {
         switch (leafSensor.getStatus())
         {
             case alarm:
-                Log.d("juda", "topic = " + mqttMessage.getTopic() + " message = " + mqttMessage.getMessage());
-                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
-                sendSettingsToSensor(mqttMessage.getTopic(),"1234");
-                break;
             case unlocked:
+                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
                 triggerSensorAlramBasedOnTime(leafSensor);
                 break;
             case open:
@@ -231,7 +228,6 @@ public class BackGroundService extends LifecycleService {
      */
     private void triggerSensorAlramBasedOnTime(LeafSensor leafSensor)
     {
-
         AlarmManager alarmMgr;
         if (leafSensor.isTimeAllowedUnlockActive() && leafSensor.getTimeAllowedUnlockInMin()>0)
         {

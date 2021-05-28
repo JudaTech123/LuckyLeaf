@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 
 import com.example.luckyleaf.Consts;
 import com.example.luckyleaf.R;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -62,6 +63,26 @@ public class LeafSensor {
     boolean     timeInDayToChecActive;
     @Ignore
     boolean     editMode;
+    @Ignore
+    boolean     notifyMobile;
+    @Ignore
+    boolean     notifySensor;
+
+    public boolean isNotifyMobile() {
+        return notifyMobile;
+    }
+
+    public boolean isNotifySensor() {
+        return notifySensor;
+    }
+
+    public void setNotifyMobile(boolean notifyMobile) {
+        this.notifyMobile = notifyMobile;
+    }
+
+    public void setNotifySensor(boolean notifySensor) {
+        this.notifySensor = notifySensor;
+    }
 
     public boolean isEditMode() {
         return editMode;
@@ -266,38 +287,41 @@ public class LeafSensor {
         switch (status)
         {
             case open:
-                return "open";
+                return "opened";
             case locked:
                 return "locked";
             case unlocked:
-                return "unlocked";
+                return "closed";
             case alarm:
                 return "alarm";
             default:
                 return strStatus;
         }
     }
-    public boolean isSameStatus(String strStatus)
+    public boolean isSameStatus(String strStatusData)
     {
         LeafStatus tmpStatus = LeafStatus.unknown;
-        if (strStatus.equalsIgnoreCase("open"))
+        MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(strStatusData,MqqtMessageResponseModel.class);
+        this.strStatus = mqqtMessageData.getState();
+        if (strStatus.equalsIgnoreCase("opened"))
             tmpStatus = LeafStatus.open;
         else if (strStatus.equalsIgnoreCase("locked"))
             tmpStatus = LeafStatus.locked;
-        else if (strStatus.equalsIgnoreCase("unlocked"))
+        else if (strStatus.equalsIgnoreCase("closed"))
             tmpStatus = LeafStatus.unlocked;
         else if (strStatus.equalsIgnoreCase("alarm"))
             tmpStatus = LeafStatus.alarm;
         return tmpStatus.equals(status);
     }
-    public void processStatus(String strStatus)
+    public void processStatus(String strStatusData)
     {
-        this.strStatus = strStatus;
-        if (strStatus.equalsIgnoreCase("open"))
+        MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(strStatusData,MqqtMessageResponseModel.class);
+        this.strStatus = mqqtMessageData.getState();
+        if (strStatus.equalsIgnoreCase("opened"))
             status = LeafStatus.open;
         else if (strStatus.equalsIgnoreCase("locked"))
             status = LeafStatus.locked;
-        else if (strStatus.equalsIgnoreCase("unlocked"))
+        else if (strStatus.equalsIgnoreCase("closed"))
             status = LeafStatus.unlocked;
         else if (strStatus.equalsIgnoreCase("alarm"))
             status = LeafStatus.alarm;
@@ -332,12 +356,12 @@ public class LeafSensor {
         switch (status)
         {
             case open:
-                strStatus = "open";
+                strStatus = "opened";
             case locked:
                 strStatus = "locked";
             case unlocked:
             case alarm:
-                strStatus =  "unlocked";
+                strStatus =  "closed";
             default:
                 strStatus = "";
         }

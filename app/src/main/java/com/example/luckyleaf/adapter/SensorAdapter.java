@@ -24,7 +24,21 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
     private final SensorPressedCallback callback;
 
     public void updateSensorList(List<LeafSensor> sensorList) {
-        this.sensorList = sensorList;
+        if (this.sensorList==null || sensorList==null)
+            this.sensorList = sensorList;
+        else
+        {
+            for (int storedSensorIndex=0;storedSensorIndex<this.sensorList.size();storedSensorIndex++)
+            {
+                for (int newSensorIndex=0;newSensorIndex<sensorList.size();newSensorIndex++)
+                {
+                    LeafSensor storedSensor = this.sensorList.get(storedSensorIndex);
+                    LeafSensor newSensor = sensorList.get(newSensorIndex);
+                    if (!storedSensor.getSensorName().equals(newSensor.getSensorName())) continue;
+                    storedSensor.updateItem(newSensor);
+                }
+            }
+        }
         notifyDataSetChanged();
     }
 
