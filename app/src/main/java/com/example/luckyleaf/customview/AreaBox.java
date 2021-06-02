@@ -94,7 +94,7 @@ public class AreaBox extends View {
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setStyle(Paint.Style.STROKE);
         p.setColor(0xFF000000);
-        p.setStrokeWidth(10);
+        p.setStrokeWidth(5);
         Path path = createPariatRoundedRectPath(drawRect.left,drawRect.top,drawRect.right,drawRect.bottom,50,50,false);
         canvas.drawPath(path,p);
     }

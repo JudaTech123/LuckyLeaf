@@ -74,7 +74,7 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
         tools:listitem="@layout/item_sensor"
-        android:background="@drawable/list_background"
+
         android:adapter="@{sensorAdapter}"
         android:clipToPadding="false"
         />

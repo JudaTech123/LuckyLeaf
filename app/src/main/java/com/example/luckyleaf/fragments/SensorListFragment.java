@@ -88,20 +88,6 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent mqttService = new Intent(getContext(), BackGroundService.class);
-                mqttService.putExtra("unlockKey","title");
-                mqttService.putExtra(BackGroundService.SHOW_NOTIFACTION, "");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    getActivity().startForegroundService(mqttService);
-                }
-                else
-                    getActivity().startService(mqttService);
-            }
-        },15000);
-
     }
 
     @Override

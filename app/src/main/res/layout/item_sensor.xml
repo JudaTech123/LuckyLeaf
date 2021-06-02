@@ -22,8 +22,8 @@
 
     <ImageView
         android:id="@+id/holder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_margin="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,8 +39,9 @@
         android:text="@{sensorData.sensorName}"
         android:textColor="#FFFFFFFF"
         android:textSize="18sp"
+        android:layout_marginStart="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/sensorConnectionStatusImg"
+        app:layout_constraintStart_toEndOf="@id/imgShortLogo"
         app:layout_constraintEnd_toStartOf="@id/sensorStatusImg"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Back Door" />
@@ -64,22 +65,22 @@
         android:textColor="@color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toStartOf="@id/imgSettings"
-        app:layout_constraintTop_toTopOf="@id/sensorConnectionStatusImg"
-        app:layout_constraintBottom_toBottomOf="@id/sensorConnectionStatusImg"
+        app:layout_constraintTop_toTopOf="@id/imgShortLogo"
+        app:layout_constraintBottom_toBottomOf="@id/imgShortLogo"
         android:layout_marginEnd="10dp"
         app:showIfHasStatus="@{sensorData}"
         tools:layout_editor_absoluteY="30dp"
         tools:text="12:52" />
 
     <ImageView
-        android:id="@+id/sensorConnectionStatusImg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/imgShortLogo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/holder"
         app:layout_constraintBottom_toBottomOf="@id/holder"
-        tools:src="@drawable/sensor_mode_undefined"
-        app:sensorStatus="@{sensorData}"
+        android:layout_marginStart="10dp"
+        android:src="@drawable/icon_1"
         android:layout_marginEnd="10dp" />
 
     <ImageView

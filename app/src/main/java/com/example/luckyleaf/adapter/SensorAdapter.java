@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
@@ -83,7 +84,21 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             return new SensorEditViewHolder(dataBinding);
         }
     }
-
+    private void setIconColor(ImageView imgIcon,int index)
+    {
+        if (index==0)
+            imgIcon.setImageResource(R.drawable.icon_1);
+        if (index==1)
+            imgIcon.setImageResource(R.drawable.icon_2);
+        if (index==2)
+            imgIcon.setImageResource(R.drawable.icon_3);
+        if (index==3)
+            imgIcon.setImageResource(R.drawable.icon_4);
+        if (index==4)
+            imgIcon.setImageResource(R.drawable.icon_5);
+        if (index==5)
+            imgIcon.setImageResource(R.drawable.icon_6);
+    }
     @Override
     public void onBindViewHolder(@NonNull SensorListItem holder, int position) {
         if (position < 0 || position >= sensorList.size()) return;
@@ -97,6 +112,11 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             ItemSensorBinding dataBind = (ItemSensorBinding) dataBinding;
             dataBind.setSensorIndex(position);
             dataBind.setSensorData(sensor);
+            setIconColor(dataBind.imgShortLogo,position % 6);
+            if (position==sensorList.size()-1)
+                dataBind.getRoot().setBackgroundResource(R.drawable.list_end_background);
+            else
+                dataBind.getRoot().setBackgroundResource(R.drawable.list_background);
         }
         if (getItemViewType(position)==1)
         {
@@ -104,7 +124,13 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             ItemSensorOpenBinding dataBind = (ItemSensorOpenBinding) dataBinding;
             dataBind.setSensorIndex(position);
             dataBind.setSensorData(sensor);
+            setIconColor(dataBind.imgShortLogo,position % 6);
+            if (position==sensorList.size()-1)
+                dataBind.getRoot().setBackgroundResource(R.drawable.list_end_background);
+            else
+                dataBind.getRoot().setBackgroundResource(R.drawable.list_background);
         }
+
     }
 
     @Override
