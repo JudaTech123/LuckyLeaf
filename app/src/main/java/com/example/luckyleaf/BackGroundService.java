@@ -243,7 +243,7 @@ public class BackGroundService extends LifecycleService {
     private void triggerSensorAlramBasedOnTime(LeafSensor leafSensor)
     {
         AlarmManager alarmMgr;
-        if (leafSensor.isTimeAllowedUnlockActive() && leafSensor.getTimeAllowedUnlockInMin()>0)
+        if (leafSensor.getTime_based_alarm_mobile_enable() && leafSensor.getTime_based_alarm_time_amount()>0)
         {
             PendingIntent alarmIntent;
 
@@ -255,12 +255,15 @@ public class BackGroundService extends LifecycleService {
 
             alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                     SystemClock.elapsedRealtime() +
-                            leafSensor.getTimeAllowedUnlockInMin()*1000, alarmIntent);
+                            leafSensor.getTime_based_alarm_time_amount()*1000, alarmIntent);
         }
-        if (leafSensor.isTimeInDayToChecActive())
+        if (leafSensor.getHourly_based_alarm_mobile_enable())
         {
-            long alarmHour = leafSensor.getTimeInDayToCheckHour();
-            long alarmMinute = leafSensor.getTimeInDayToCheckMin();
+            long rawTime = leafSensor.getHourly_based_alarm_hour_min_time();
+            if (rawTime==0) return;
+
+            long alarmHour = rawTime/100;
+            long alarmMinute = rawTime % 100;
             Calendar now = Calendar.getInstance();
             Calendar alarmTimer = Calendar.getInstance();
             alarmTimer.set(Calendar.HOUR_OF_DAY, (int)alarmHour);
@@ -324,14 +327,13 @@ public class BackGroundService extends LifecycleService {
                 connectStatus.removeObserver(this);
                 synchronized (sensorUpdate) {
                     Log.d("juda", "connectToMqtt = " + aBoolean);
+                    LiveData<MqttMessage> settingsData = MqqtApi.getInstance().subscribe("response");
+                    settingsData.observe(BackGroundService.this, mqttMessage -> processMqttSettingsMessage(mqttMessage));
                     if (aBoolean) {
                         sensors = SensorRepo.getInstane().getSensors();
                         if (sensors != null) {
                             for (LeafSensor sensor : sensors) {
-                                LiveData<MqttMessage> settingsData = MqqtApi.getInstance().subscribe(sensor.getMqttTopic() + SETTING_SUFFIX);
                                 LiveData<MqttMessage> data = MqqtApi.getInstance().subscribe(sensor.getMqttTopic());
-
-                                //settingsData.observe(BackGroundService.this, mqttMessage -> processMqttSettingsMessage(mqttMessage));
                                 data.observe(BackGroundService.this, mqttMessage -> processMqttStatusMessage(mqttMessage));
                             }
                         }

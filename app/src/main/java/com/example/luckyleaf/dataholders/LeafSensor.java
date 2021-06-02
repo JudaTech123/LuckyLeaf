@@ -51,22 +51,35 @@ public class LeafSensor {
     boolean     active;
     @ColumnInfo(name = "updateDate")
     long     updateDate;
-    @ColumnInfo(name = "timeAllowedUnlockInMin")
-    long     timeAllowedUnlockInMin;
-    @ColumnInfo(name = "timeInDayToCheckHour")
-    long     timeInDayToCheckHour;
-    @ColumnInfo(name = "timeInDayToCheckMin")
-    long     timeInDayToCheckMin;
-    @ColumnInfo(name = "timeAllowedUnlockActive")
-    boolean     timeAllowedUnlockActive;
-    @ColumnInfo(name = "timeInDayToChecActive")
-    boolean     timeInDayToChecActive;
+    @ColumnInfo(name = "state_event_group")
+    long      state_event_group;
+    @ColumnInfo(name = "time_based_alarm_time_amount")
+    long      time_based_alarm_time_amount;
+    @ColumnInfo(name = "time_based_alarm_mobile_enable")
+    boolean      time_based_alarm_mobile_enable;
+    @ColumnInfo(name = "time_based_alarm_buzzer_enable")
+    boolean      time_based_alarm_buzzer_enable;
+
+    @ColumnInfo(name = "hourly_based_alarm_hour_min_time")
+    long      hourly_based_alarm_hour_min_time;
+    @ColumnInfo(name = "hourly_based_alarm_mobile_enable")
+    boolean      hourly_based_alarm_mobile_enable;
+    @ColumnInfo(name = "hourly_based_alarm_buzzer_enable")
+    boolean      hourly_based_alarm_buzzer_enable;
     @Ignore
     boolean     editMode;
     @Ignore
     boolean     notifyMobile;
     @Ignore
     boolean     notifySensor;
+
+    public void setState_event_group(long event_group) {
+        this.state_event_group = event_group;
+    }
+
+    public long getState_event_group() {
+        return state_event_group;
+    }
 
     public boolean isNotifyMobile() {
         return notifyMobile;
@@ -92,59 +105,50 @@ public class LeafSensor {
         this.editMode = editMode;
     }
 
-    public void setTimeAllowedUnlockActive(boolean timeAllowedUnlockActive) {
-        this.timeAllowedUnlockActive = timeAllowedUnlockActive;
+    public void setTime_based_alarm_time_amount(long time_based_alarm_time_amount) {
+        this.time_based_alarm_time_amount = time_based_alarm_time_amount;
     }
 
-    public void setTimeInDayToChecActive(boolean timeInDayToChecActive) {
-        this.timeInDayToChecActive = timeInDayToChecActive;
+    public void setTime_based_alarm_buzzer_enable(boolean time_based_alarm_buzzer_enable) {
+        this.time_based_alarm_buzzer_enable = time_based_alarm_buzzer_enable;
+    }
+    public boolean getTime_based_alarm_buzzer_enable() {
+        return time_based_alarm_buzzer_enable;
     }
 
-    public boolean isTimeAllowedUnlockActive() {
-        return timeAllowedUnlockActive;
+    public void setTime_based_alarm_mobile_enable(boolean time_based_alarm_mobile_enable) {
+        this.time_based_alarm_mobile_enable = time_based_alarm_mobile_enable;
+    }
+    public boolean getTime_based_alarm_mobile_enable() {
+        return time_based_alarm_mobile_enable;
     }
 
-    public boolean isTimeInDayToChecActive() {
-        return timeInDayToChecActive;
+    public long getTime_based_alarm_time_amount() {
+        return time_based_alarm_time_amount;
     }
 
-    public void setTimeInDayToCheckMin(long timeInDayToCheckMin) {
-        this.timeInDayToCheckMin = timeInDayToCheckMin;
+    public void setHourly_based_alarm_hour_min_time(long hourly_based_alarm_hour_min_time) {
+        this.hourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
+    }
+    //hour*60+min. this will tell us what min and hour to check if sensor is not locked
+    public long getHourly_based_alarm_hour_min_time() {
+        return hourly_based_alarm_hour_min_time;
     }
 
-    public long getTimeAllowedUnlockInMin() {
-        return timeAllowedUnlockInMin;
+    public void setHourly_based_alarm_buzzer_enable(boolean hourly_based_alarm_buzzer_enable) {
+        this.hourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
+    }
+    public boolean getHourly_based_alarm_buzzer_enable()
+    {
+        return hourly_based_alarm_buzzer_enable;
     }
 
-    public String getTimeAllowedUnlockInMinToStr() {
-        if (timeAllowedUnlockInMin<=0) return "";
-        return String.valueOf(timeAllowedUnlockInMin);
+    public void setHourly_based_alarm_mobile_enable(boolean hourly_based_alarm_mobile_enable) {
+        this.hourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
     }
-
-    public String getTimeCheckToStr() {
-        return String.format("%02d:%02d",timeInDayToCheckHour,timeInDayToCheckMin);
-    }
-
-
-    public long getTimeInDayToCheckHour() {
-        return timeInDayToCheckHour;
-    }
-
-    public long getTimeInDayToCheckMin() {
-        return timeInDayToCheckMin;
-    }
-
-    public void setTimeInDayToCheckHour(long timeInDayToCheckHour) {
-        this.timeInDayToCheckHour = timeInDayToCheckHour;
-    }
-
-    public void setTimeInDayToCheck(int timeInDayToCheckHour, int timeInDayToCheckHourMin) {
-        this.timeInDayToCheckHour = timeInDayToCheckHour;
-        this.timeInDayToCheckMin = timeInDayToCheckHourMin;
-    }
-
-    public void setTimeAllowedUnlockInMin(long timeAllowedUnlockInMin) {
-        this.timeAllowedUnlockInMin = timeAllowedUnlockInMin;
+    public boolean getHourly_based_alarm_mobile_enable()
+    {
+        return hourly_based_alarm_mobile_enable;
     }
 
     @Ignore
@@ -341,18 +345,21 @@ public class LeafSensor {
         this.active = active;
     }
 
-    public LeafSensor(String mqttTopic, String sensorName,LeafStatus status,long updateDate,boolean active,long timeAllowedUnlockInMin,long timeInDayToCheckHour,long timeInDayToCheckMin,boolean timeAllowedUnlockActive,boolean timeInDayToChecActive)
+    public LeafSensor(String mqttTopic, String sensorName,LeafStatus status,long updateDate,boolean active,long time_based_alarm_time_amount,
+                      boolean time_based_alarm_mobile_enable,boolean time_based_alarm_buzzer_enable, long hourly_based_alarm_hour_min_time,
+                      boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable)
     {
         this.mqttTopic = mqttTopic;
         this.sensorName = sensorName;
         this.active = active;
         this.status = status;
         this.updateDate = updateDate;
-        this.timeInDayToCheckMin = timeInDayToCheckMin;
-        this.timeInDayToCheckHour = timeInDayToCheckHour;
-        this.timeAllowedUnlockInMin = timeAllowedUnlockInMin;
-        this.timeAllowedUnlockActive = timeAllowedUnlockActive;
-        this.timeInDayToChecActive = timeInDayToChecActive;
+        this.time_based_alarm_time_amount = time_based_alarm_time_amount;
+        this.time_based_alarm_mobile_enable = time_based_alarm_mobile_enable;
+        this.time_based_alarm_buzzer_enable = time_based_alarm_buzzer_enable;
+        this.hourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
+        this.hourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
+        this.hourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
         switch (status)
         {
             case open:

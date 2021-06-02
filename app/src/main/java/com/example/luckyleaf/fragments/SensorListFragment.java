@@ -57,10 +57,10 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 {
                     sensor.setNotifySensor(!sensor.isNotifySensor());
                 }
-                if (i==5)
-                {
-                    sensor.setTimeAllowedUnlockActive(!sensor.isTimeAllowedUnlockActive());
-                }
+//                if (i==5)
+//                {
+//                    sensor.setTimeAllowedUnlockActive(!sensor.isTimeAllowedUnlockActive());
+//                }
                 adapter.notifyItemChanged(index);
                 return;
             }

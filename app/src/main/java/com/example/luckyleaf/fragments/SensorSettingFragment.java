@@ -59,45 +59,6 @@ public class SensorSettingFragment extends Fragment implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.imgUnlockTimeStatus)
-        {
-            LeafSensor _sensor = dataBinding.getSensorData();
-            _sensor.setTimeAllowedUnlockActive(!_sensor.isTimeAllowedUnlockActive());
-            dataBinding.setSensorData(_sensor);
-        }
-        if (view.getId() == R.id.imgCheckTimerStatus)
-        {
-            LeafSensor _sensor = dataBinding.getSensorData();
-            _sensor.setTimeInDayToChecActive(!_sensor.isTimeInDayToChecActive());
-            dataBinding.setSensorData(_sensor);
-        }
-        if (view.getId() == R.id.btnPickTime)
-        {
-            LeafSensor _sensor = dataBinding.getSensorData();
-            TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(),
-                    new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker view, int hourOfDay,
-                                              int minute) {
 
-                            LeafSensor _sensor = dataBinding.getSensorData();
-                            _sensor.setTimeInDayToCheck(hourOfDay,minute);
-                            dataBinding.setSensorData(_sensor);
-                        }
-                    }, (int)_sensor.getTimeInDayToCheckHour(), (int)_sensor.getTimeAllowedUnlockInMin(), true);
-            timePickerDialog.show();
-        }
-        if (view.getId() == R.id.btnSaveData)
-        {
-            LeafSensor _sensor = dataBinding.getSensorData();
-            if (dataBinding.edtUnlockSettings.getText()!=null) {
-                try {
-                    _sensor.setTimeAllowedUnlockInMin(Long.parseLong(dataBinding.edtUnlockSettings.getText().toString()));
-                }catch (NumberFormatException ignore){
-                    _sensor.setTimeAllowedUnlockInMin(0);
-                }
-            }
-            SensorRepo.getInstane().updateSensor(_sensor);
-        }
     }
 }

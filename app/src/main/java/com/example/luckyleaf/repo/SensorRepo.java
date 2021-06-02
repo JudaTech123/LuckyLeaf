@@ -105,8 +105,8 @@ public class SensorRepo {
             @Override
             public void run() {
                 DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),System.currentTimeMillis(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
-                        sensorToUpdate.getTimeAllowedUnlockInMin(),sensorToUpdate.getTimeInDayToCheckHour(),sensorToUpdate.getTimeInDayToCheckMin(),sensorToUpdate.isTimeAllowedUnlockActive(),
-                        sensorToUpdate.isTimeInDayToChecActive(),sensorToUpdate.getMqttTopic());
+                        sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
+                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
             }
         });
         return true;
@@ -118,8 +118,8 @@ public class SensorRepo {
             @Override
             public void run() {
                 DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),sensor.getUpdateDate(),sensor.getSensorName(),sensor.isActive(),
-                        sensor.getTimeAllowedUnlockInMin(),sensor.getTimeInDayToCheckHour(),sensor.getTimeInDayToCheckMin(),sensor.isTimeAllowedUnlockActive(),
-                        sensor.isTimeInDayToChecActive(),sensor.getMqttTopic());
+                        sensor.getState_event_group(),sensor.getTime_based_alarm_time_amount(),sensor.getTime_based_alarm_mobile_enable(),sensor.getTime_based_alarm_buzzer_enable(),
+                        sensor.getHourly_based_alarm_hour_min_time(),sensor.getHourly_based_alarm_mobile_enable(),sensor.getHourly_based_alarm_buzzer_enable(),sensor.getMqttTopic());
             }
         });
         return sensor.getStatus() == LeafStatus.alarm;

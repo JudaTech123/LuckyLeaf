@@ -25,10 +25,13 @@ public interface LeafSensorDAO {
 
     @Query("DELETE FROM LeafSensor WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
     void removeSensor(String sensorName,String sensorMqqt);
-    
+
     @Query("UPDATE LeafSensor SET status = :status , updateDate =:updateTime , active = :active , " +
-            "timeAllowedUnlockInMin = :timeAllowedUnlockInMin , timeInDayToCheckHour = :timeInDayToCheckHour," +
-            "timeInDayToCheckMin = :timeInDayToCheckMin , timeAllowedUnlockActive = :timeAllowedUnlockActive, timeInDayToChecActive =:timeInDayToChecActive" +
-            " WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
-    void updateSensorData(LeafStatus status,long updateTime,String sensorName,boolean active,long timeAllowedUnlockInMin,long timeInDayToCheckHour,long timeInDayToCheckMin,boolean timeAllowedUnlockActive,boolean timeInDayToChecActive,String sensorMqqt);
+            "time_based_alarm_time_amount = :time_based_alarm_time_amount, state_event_group = :event_group , " +
+            "time_based_alarm_mobile_enable = :time_based_alarm_mobile_enable , time_based_alarm_buzzer_enable = :time_based_alarm_buzzer_enable," +
+            "hourly_based_alarm_hour_min_time =:hourly_based_alarm_hour_min_time , hourly_based_alarm_mobile_enable=:hourly_based_alarm_mobile_enable," +
+            "hourly_based_alarm_buzzer_enable =:hourly_based_alarm_buzzer_enable WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
+    void updateSensorData(LeafStatus status,long updateTime,String sensorName,boolean active,long event_group,
+                          long time_based_alarm_time_amount,boolean time_based_alarm_mobile_enable, boolean time_based_alarm_buzzer_enable,
+                          long hourly_based_alarm_hour_min_time,boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable,String sensorMqqt);
 }

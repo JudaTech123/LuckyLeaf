@@ -78,7 +78,7 @@
         android:layout_width="25dp"
         android:layout_height="35dp"
         android:src="@drawable/list_item_track_background"
-        app:statusActive="@{sensorData.timeAllowedUnlockActive}"
+
         android:padding="5dp"
         android:onClick="@{clickListener}"
         android:clickable="true"
@@ -110,7 +110,7 @@
         app:layout_constraintBottom_toBottomOf="@id/txtUnlockSettings"
         app:layout_constraintStart_toEndOf="@id/txtUnlockSettings"
         android:layout_marginStart="10dp"
-        android:text="@{sensorData.timeAllowedUnlockInMinToStr}"
+
         tools:text="Sensor"
         />
     <TextView
@@ -131,7 +131,7 @@
         android:layout_width="25dp"
         android:layout_height="35dp"
         android:src="@drawable/list_item_track_background"
-        app:statusActive="@{sensorData.timeInDayToChecActive}"
+
         android:padding="5dp"
         android:onClick="@{clickListener}"
         android:clickable="true"
@@ -165,7 +165,7 @@
         app:layout_constraintBottom_toBottomOf="@id/txtCheckTimerSettings"
         app:layout_constraintStart_toEndOf="@id/txtCheckTimerSettings"
         android:layout_marginStart="10dp"
-        android:text="@{sensorData.timeCheckToStr}"
+
         android:drawableEnd="@android:drawable/ic_menu_my_calendar"
         tools:text="12:12"
         />
