@@ -131,6 +131,7 @@ public class BackGroundService extends LifecycleService {
     public static final String RECONNECT_MQTT = "CONNECT";
     public static final String DISONNECT_MQTT = "DISCONNECT";
     public static final String IN_FRONT = "IN_FRONT";
+    public static final String UPDATE_SETTINGS = "UPDATE_SETTINGS";
     public static final String SHOW_NOTIFACTION = "SHOW_NOTIFACTION";
 
     private final String SETTING_SUFFIX = "_settings";
@@ -161,6 +162,11 @@ public class BackGroundService extends LifecycleService {
                 inFront = intent.getExtras().getBoolean(IN_FRONT);
                 if (!MqqtApi.getInstance().askConnectionStatud())
                     connectToMqtt();
+            }
+            if (intent.getExtras().containsKey(UPDATE_SETTINGS))
+            {
+                String settings = intent.getExtras().getString(UPDATE_SETTINGS);
+                sendSettingsToSensor(settings);
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -193,9 +199,10 @@ public class BackGroundService extends LifecycleService {
             }
         });
     }
-    private void sendSettingsToSensor(String topic,String settingsJson)
+    private void sendSettingsToSensor(String settingsJson)
     {
-        MqqtApi.getInstance().publish(topic + SETTING_SUFFIX,settingsJson,true).observe(BackGroundService.this, new Observer<Boolean>() {
+        Log.d("juda","sendSettingsToSensor : " + settingsJson);
+        MqqtApi.getInstance().publish("response",settingsJson,true).observe(BackGroundService.this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
                 if (aBoolean!=null && aBoolean)

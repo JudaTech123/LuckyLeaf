@@ -19,7 +19,9 @@ import com.example.luckyleaf.R;
 import com.example.luckyleaf.adapter.SettingsAdapter;
 import com.example.luckyleaf.databinding.FragmentSettingsBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.network.Api;
 import com.example.luckyleaf.network.MqqtApi;
+import com.example.luckyleaf.network.responsemodels.SettingsResponsemodel;
 import com.example.luckyleaf.repo.SensorRepo;
 
 import java.util.ArrayList;
@@ -55,9 +57,53 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
         return dataBinding.getRoot();
     }
 
+    //this function will take the settings from the local sensor and send it to the connected sensor
+    private void sendSettings(LeafSensor sensor)
+    {
 
+    }
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.btnGetSettingsFromSensor)
+        {
+            LeafSensor markedItem = dataBinding.getAdapter().getMarkedItem();
+            if (markedItem!=null)
+            {
+                Api.instance().askSettingsToSensor().observe(getViewLifecycleOwner(), settingsResponsemodel -> {
+                    if (settingsResponsemodel==null) return;
+                    markedItem.setState_event_group(settingsResponsemodel.getState_event_group());
+
+                    markedItem.setTime_based_alarm_buzzer_enable(settingsResponsemodel.getTimer_based().getSound_enable() == 1);
+                    markedItem.setTime_based_alarm_mobile_enable(settingsResponsemodel.getTimer_based().getMobap_enable() == 1);
+                    markedItem.setTime_based_alarm_time_amount(settingsResponsemodel.getTimer_based().getValue_second());
+
+                    markedItem.setHourly_based_alarm_hour_min_time(settingsResponsemodel.getHour_based().getValue_second());
+                    markedItem.setHourly_based_alarm_mobile_enable(settingsResponsemodel.getHour_based().getMobap_enable() == 1);
+                    markedItem.setHourly_based_alarm_buzzer_enable(settingsResponsemodel.getHour_based().getSound_enable()==1);
+                    SensorRepo.getInstane().updateSensor(markedItem);
+                });
+            }
+        }
+        if (view.getId() == R.id.btnSendSettingsFromSensor)
+        {
+            LeafSensor markedItem = dataBinding.getAdapter().getMarkedItem();
+            if (markedItem!=null)
+            {
+                Api.instance().sendSettingsToSensor(markedItem.getSettingsAsJson()).observe(getViewLifecycleOwner(), settingsResponsemodel -> {
+                    if (settingsResponsemodel==null) return;
+                    markedItem.setState_event_group(settingsResponsemodel.getState_event_group());
+
+                    markedItem.setTime_based_alarm_buzzer_enable(settingsResponsemodel.getTimer_based().getSound_enable() == 1);
+                    markedItem.setTime_based_alarm_mobile_enable(settingsResponsemodel.getTimer_based().getMobap_enable() == 1);
+                    markedItem.setTime_based_alarm_time_amount(settingsResponsemodel.getTimer_based().getValue_second());
+
+                    markedItem.setHourly_based_alarm_hour_min_time(settingsResponsemodel.getHour_based().getValue_second());
+                    markedItem.setHourly_based_alarm_mobile_enable(settingsResponsemodel.getHour_based().getMobap_enable() == 1);
+                    markedItem.setHourly_based_alarm_buzzer_enable(settingsResponsemodel.getHour_based().getSound_enable()==1);
+                    SensorRepo.getInstane().updateSensor(markedItem);
+                });
+            }
+        }
         if (view.getId() == R.id.btnConnect)
         {
             PrefsHelper.getInstance().setMqttUrl(dataBinding.edtMqqtUrl.getText().toString());

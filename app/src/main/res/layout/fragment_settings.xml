@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
@@ -10,7 +11,7 @@
             type="com.example.luckyleaf.adapter.SettingsAdapter" />
     </data>
 <androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
     <TextView
         android:layout_width="wrap_content"
@@ -62,30 +63,18 @@
 
     <Button
         android:id="@+id/btnConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/txtMqqtStatus"
-        app:layout_constraintEnd_toEndOf="@id/edtMqqtUrl"
+        android:layout_width="90dp"
+        android:layout_height="53dp"
+        android:onClick="@{clickListener}"
         android:text="Connect"
-        android:onClick="@{clickListener}"/>
-
-    <TextView
-        android:id="@+id/txtSensorList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18dp"
-        android:text="Sensors"
-        android:layout_marginStart="20dp"
-        app:layout_constraintTop_toBottomOf="@id/txtMqqtStatus"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintVertical_bias="0.05"/>
+        app:layout_constraintEnd_toEndOf="@id/edtMqqtUrl"
+        app:layout_constraintTop_toTopOf="@id/txtMqqtStatus" />
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="@id/edtMqqtUrl"
         app:layout_constraintEnd_toEndOf="@id/edtMqqtUrl"
-        app:layout_constraintTop_toBottomOf="@id/txtSensorList"
+        app:layout_constraintTop_toBottomOf="@id/btnSendSettingsFromSensor"
         app:layout_constraintBottom_toTopOf="@id/txtAddNewSensor"
         android:layout_marginBottom="20dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -166,6 +155,28 @@
         app:layout_constraintStart_toEndOf="@id/btnAddSensor"
         android:onClick="@{clickListener}"
         android:text="Remove sensor"/>
+
+    <Button
+        android:id="@+id/btnGetSettingsFromSensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnConnect"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:onClick="@{clickListener}"
+        android:text="Get settings"/>
+
+    <Button
+        android:id="@+id/btnSendSettingsFromSensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnConnect"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintEnd_toEndOf="@id/btnConnect"
+        android:onClick="@{clickListener}"
+        android:text="Send settings"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

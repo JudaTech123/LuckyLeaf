@@ -1,6 +1,9 @@
 package com.example.luckyleaf.adapter;
 
 import android.content.Context;
+import android.graphics.Paint;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -23,6 +26,11 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
     private List<LeafSensor> sensorList;
     private final Context context;
     private final SensorPressedCallback callback;
+    private final SensorEditChangedCallback textChangedCallBack;
+
+    public List<LeafSensor> getSensorList() {
+        return sensorList;
+    }
 
     public void updateSensorList(List<LeafSensor> sensorList) {
         if (this.sensorList==null || sensorList==null)
@@ -49,11 +57,12 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         notifyItemChanged(index);
     }
 
-    public SensorAdapter(Context context, ArrayList<LeafSensor> sensorList, SensorPressedCallback callback)
+    public SensorAdapter(Context context, ArrayList<LeafSensor> sensorList, SensorPressedCallback callback,SensorEditChangedCallback textChangedCallBack)
     {
         this.sensorList = sensorList;
         this.context = context;
         this.callback = callback;
+        this.textChangedCallBack = textChangedCallBack;
     }
 
     @Override
@@ -99,6 +108,7 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         if (index==5)
             imgIcon.setImageResource(R.drawable.icon_6);
     }
+    TextWatcher timeChanged = null;
     @Override
     public void onBindViewHolder(@NonNull SensorListItem holder, int position) {
         if (position < 0 || position >= sensorList.size()) return;
@@ -129,6 +139,41 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
                 dataBind.getRoot().setBackgroundResource(R.drawable.list_end_background);
             else
                 dataBind.getRoot().setBackgroundResource(R.drawable.list_background);
+            if (timeChanged!=null)
+                dataBind.edtTimeToBuzz.removeTextChangedListener(timeChanged);
+            dataBind.edtTimeToBuzz.setText(sensor.getTime_based_alarm_time_amount() + "");
+            long currHourMin = sensor.getHourly_based_alarm_hour_min_time();
+            if (currHourMin!=0) {
+                int hour = (int) currHourMin / 100;
+                int min = (int) currHourMin % 100;
+                dataBind.txtTimeInDay.setText(hour + ":" + min);
+            }
+            else
+            {
+                dataBind.txtTimeInDay.setText("Pick Time");
+            }
+            dataBind.txtTimeInDay.setPaintFlags(dataBind.txtTimeInDay.getPaintFlags() |   Paint.UNDERLINE_TEXT_FLAG);
+            if (timeChanged==null)
+                timeChanged = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (textChangedCallBack!=null)
+                        {
+                            textChangedCallBack.timeChanged(sensor,editable.toString(),position);
+                        }
+                    }
+                };
+            dataBind.edtTimeToBuzz.addTextChangedListener(timeChanged);
         }
 
     }
@@ -140,5 +185,8 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
 
     public interface SensorPressedCallback{
         void sensorClicked(LeafSensor sensor, int index,int clickType);
+    }
+    public interface SensorEditChangedCallback{
+        void timeChanged(LeafSensor sensor,String text, int index);
     }
 }

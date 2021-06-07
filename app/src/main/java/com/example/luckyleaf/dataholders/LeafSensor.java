@@ -216,6 +216,12 @@ public class LeafSensor {
         sensorName = copyFrom.sensorName;
         active = copyFrom.active;
         updateDate = copyFrom.updateDate;
+        time_based_alarm_buzzer_enable = copyFrom.time_based_alarm_buzzer_enable;
+        time_based_alarm_mobile_enable = copyFrom.time_based_alarm_mobile_enable;
+        time_based_alarm_time_amount = copyFrom.time_based_alarm_time_amount;
+        hourly_based_alarm_buzzer_enable = copyFrom.hourly_based_alarm_buzzer_enable;
+        hourly_based_alarm_hour_min_time = copyFrom.hourly_based_alarm_hour_min_time;
+        hourly_based_alarm_mobile_enable = copyFrom.hourly_based_alarm_mobile_enable;
     }
 
     public LeafStatus getStatus() {
@@ -373,4 +379,54 @@ public class LeafSensor {
                 strStatus = "";
         }
     }
+
+    /**
+     * {
+     * 	"state_event_group":	2,
+     * 	"timer_based":	{
+     * 		"value_second":	5,
+     * 		"sound_enable":	0,
+     * 		"mobap_enable":	1
+     *        },
+     * 	"hour_based":	{
+     * 		"value_second":	86409,
+     * 		"sound_enable":	0,
+     * 		"mobap_enable":	0
+     *    }
+     * }
+     * @return
+     */
+    public String getSettingsAsJson()
+    {
+        StringBuilder settings = new StringBuilder();
+        settings.append("{\"notification_configuration\":");
+        settings.append("{\"state_event_group\":");
+        settings.append("" + state_event_group + ",");
+        settings.append("\"timer_based\": {");
+        settings.append("\"value_second\": " + time_based_alarm_time_amount + ",");
+        settings.append("\"sound_enable\": " + (time_based_alarm_buzzer_enable ? "1" : "0") + ",");
+        settings.append("\"mobap_enable\": " + (time_based_alarm_mobile_enable ? "1" : "0") + "},");
+        settings.append("\"hour_based\": {");
+        settings.append("\"value_second\": " + hourly_based_alarm_hour_min_time + ",");
+        settings.append("\"sound_enable\": " + (hourly_based_alarm_buzzer_enable ? "1" : "0") + ",");
+        settings.append("\"mobap_enable\": " + (hourly_based_alarm_mobile_enable ? "1" : "0") + "}}}");
+        return settings.toString();
+    }
+
+    /**
+     * {
+     *    "notification_configuration":{
+     *       "state_event_group":2,
+     *       "timer_based":{
+     *          "value_second":120,
+     *          "sound_enable":1,
+     *          "mobap_enable":0
+     *       },
+     *       "hour_based":{
+     *          "value_second":86400,
+     *          "sound_enable":0,
+     *          "mobap_enable":0
+     *       }
+     *    }
+     */
 }

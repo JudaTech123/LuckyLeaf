@@ -133,29 +133,35 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
-            android:src="@drawable/status_locked_not_selected"
+            tools:src="@drawable/status_locked_not_selected"
+            app:event_group_type="@{sensorData}"
             app:layout_constraintStart_toStartOf="@id/txtAlertPrompt"
             app:layout_constraintEnd_toStartOf="@id/alertUnLocked"
-            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,8)}"/>
         <ImageView
             android:id="@+id/alertLocked"
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
-            android:src="@drawable/status_open_not_selected"
+            tools:src="@drawable/status_open_not_selected"
+            app:event_group_type="@{sensorData}"
             app:layout_constraintEnd_toEndOf="@id/txtAlertPrompt"
             app:layout_constraintStart_toEndOf="@id/alertUnLocked"
-            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,10)}"/>
 
         <ImageView
             android:id="@+id/alertUnLocked"
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
-            android:src="@drawable/status_unlocked_not_selected"
+            tools:src="@drawable/status_unlocked_not_selected"
+            app:event_group_type="@{sensorData}"
             app:layout_constraintStart_toEndOf="@id/alertOpen"
             app:layout_constraintEnd_toStartOf="@id/alertLocked"
-            app:layout_constraintBottom_toBottomOf="@id/alertBox"/>
+            app:layout_constraintBottom_toBottomOf="@id/alertBox"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,9)}"/>
 
         <com.example.luckyleaf.customview.AreaBox
             android:id="@+id/timeBox"
@@ -230,7 +236,7 @@
             android:layout_marginStart="10dp"
             android:padding="10dp"
             tools:src="@drawable/track_active"
-            android:src="@{sensorData.isNotifyMobile() ? @drawable/track_notactive : @drawable/track_active}"
+            android:src="@{sensorData.time_based_alarm_buzzer_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
 
         <TextView
@@ -257,7 +263,7 @@
             android:layout_marginStart="10dp"
             android:padding="10dp"
             tools:src="@drawable/track_active"
-            android:src="@{sensorData.isNotifySensor() ? @drawable/track_notactive : @drawable/track_active}"
+            android:src="@{sensorData.time_based_alarm_mobile_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
 
         <com.example.luckyleaf.customview.AreaBox
@@ -304,11 +310,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="@id/txtHourTime"
-            app:layout_constraintStart_toEndOf="@id/txtHourTime"
-            app:layout_constraintEnd_toEndOf="@id/HourBox"
+
+            app:layout_constraintEnd_toEndOf="@id/imgHourBuzzer"
             android:text="Pick time"
-            android:textSize="14dp"
-            android:textColor="@color/white"
+            android:textSize="16dp"
+            android:textColor="#4444FF"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,7)}"
             />
 
         <TextView
@@ -335,8 +342,8 @@
             android:layout_marginStart="10dp"
             android:padding="10dp"
             tools:src="@drawable/track_active"
-            android:src="@{sensorData.isNotifyMobile() ? @drawable/track_notactive : @drawable/track_active}"
-            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
+            android:src="@{sensorData.hourly_based_alarm_buzzer_enable ? @drawable/track_notactive : @drawable/track_active}"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,5)}"/>
 
         <TextView
             android:id="@+id/txtHourMobile"
@@ -362,7 +369,7 @@
             android:layout_marginStart="10dp"
             android:padding="10dp"
             tools:src="@drawable/track_active"
-            android:src="@{sensorData.isNotifySensor() ? @drawable/track_notactive : @drawable/track_active}"
-            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
+            android:src="@{sensorData.hourly_based_alarm_mobile_enable ? @drawable/track_notactive : @drawable/track_active}"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,6)}"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

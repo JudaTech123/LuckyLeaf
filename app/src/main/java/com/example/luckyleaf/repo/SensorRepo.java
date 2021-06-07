@@ -124,6 +124,27 @@ public class SensorRepo {
         });
         return sensor.getStatus() == LeafStatus.alarm;
     }
+    public void updateAllSensorsToDB(final List<LeafSensor> sensorsList)
+    {
+        myApp.getSelf().getDbHandler().post(() -> DB.getDatabase(myApp.getSelf()).runInTransaction(() -> {
+            for (LeafSensor sensorToUpdate : sensorsList)
+            {
+                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),sensorToUpdate.getUpdateDate(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
+                        sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
+                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
+            }
+            sensors = new ArrayList<>(sensorsList);
+        }));
+    }
+    public void updateSensor(final LeafSensor sensorToUpdate,int index)
+    {
+        myApp.getSelf().getDbHandler().post(() -> DB.getDatabase(myApp.getSelf()).runInTransaction(() -> {
+            DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),sensorToUpdate.getUpdateDate(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
+                    sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
+                    sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
+        }));
+        sensors.get(index).updateItem(sensorToUpdate);
+    }
     public void updateSensorList(ArrayList<LeafSensor> sensorList)
     {
         sensors = sensorList;
