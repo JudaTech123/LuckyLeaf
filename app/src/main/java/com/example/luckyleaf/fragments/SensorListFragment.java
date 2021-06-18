@@ -265,26 +265,47 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
             args.putString("LeafSensor", sensor.getMqttTopic());
             navController.navigate(R.id.action_startFragment_to_sensorScreen, args, null);
         };
-        SensorAdapter.SensorEditChangedCallback textChangedListener = new SensorAdapter.SensorEditChangedCallback() {
-            @Override
-            public void timeChanged(LeafSensor sensor, String text, int index) {
-                if (index!=-1)
-                {
-                    dataBinding.getRoot().removeCallbacks(updateDB);
-                    long timeAmount = 0;
-                    try {
-                        timeAmount = Long.parseLong(text);
-                    }catch (NumberFormatException ignore){}//if we failed to get number treat as 0
-                    sensor.setTime_based_alarm_time_amount(timeAmount);
-                    delayedHandler.removeMessages(index);
-                    Message msg = Message.obtain();
-                    msg.what = index;
-                    msg.obj = sensor;
-                    delayedHandler.sendMessageDelayed(msg,1500);
-                }
+        SensorAdapter.SensorEditChangedCallback textChangedListener = (sensor, text, index) -> {
+            if (index!=-1)
+            {
+                dataBinding.getRoot().removeCallbacks(updateDB);
+                long timeAmount = 0;
+                try {
+                    timeAmount = Long.parseLong(text);
+                }catch (NumberFormatException ignore){}//if we failed to get number treat as 0
+                sensor.setTime_based_alarm_time_amount(timeAmount);
+                delayedHandler.removeMessages(index);
+                Message msg = Message.obtain();
+                msg.what = index;
+                msg.obj = sensor;
+                delayedHandler.sendMessageDelayed(msg,1500);
             }
         };
-        adapter = new SensorAdapter(requireContext(), SensorRepo.getInstane().getSensors(), openFullScreen,textChangedListener);
+        SensorAdapter.SensorEditChangedCallback ssidChangedListener = (sensor, text, index) -> {
+            if (index!=-1)
+            {
+                dataBinding.getRoot().removeCallbacks(updateDB);
+                sensor.setWifi_ssid(text);
+                delayedHandler.removeMessages(index);
+                Message msg = Message.obtain();
+                msg.what = index;
+                msg.obj = sensor;
+                delayedHandler.sendMessageDelayed(msg,1500);
+            }
+        };
+        SensorAdapter.SensorEditChangedCallback pwdChangedListener = (sensor, text, index) -> {
+            if (index!=-1)
+            {
+                dataBinding.getRoot().removeCallbacks(updateDB);
+                sensor.setWifi_pswd(text);
+                delayedHandler.removeMessages(index);
+                Message msg = Message.obtain();
+                msg.what = index;
+                msg.obj = sensor;
+                delayedHandler.sendMessageDelayed(msg,1500);
+            }
+        };
+        adapter = new SensorAdapter(requireContext(), SensorRepo.getInstane().getSensors(), openFullScreen,textChangedListener,ssidChangedListener,pwdChangedListener);
         dataBinding.setSensorAdapter(adapter);
         LiveData<List<LeafSensor>> data =  SensorRepo.getInstane().askUpdates();
         data.observe(getViewLifecycleOwner(), new Observer<List<LeafSensor>>() {

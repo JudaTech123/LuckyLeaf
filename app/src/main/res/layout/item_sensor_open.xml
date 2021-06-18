@@ -459,7 +459,7 @@
             />
 
         <EditText
-            android:id="@+id/edtWifiPWDTitle"
+            android:id="@+id/edtWifiPWD"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintWidth_percent="0.5"

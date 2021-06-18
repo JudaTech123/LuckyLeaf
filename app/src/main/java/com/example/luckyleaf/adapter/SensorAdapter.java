@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -27,6 +26,8 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
     private final Context context;
     private final SensorPressedCallback callback;
     private final SensorEditChangedCallback textChangedCallBack;
+    private final SensorEditChangedCallback ssidChangedCallBack;
+    private final SensorEditChangedCallback wifi_pwdChangedCallBack;
 
     public List<LeafSensor> getSensorList() {
         return sensorList;
@@ -57,12 +58,15 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         notifyItemChanged(index);
     }
 
-    public SensorAdapter(Context context, ArrayList<LeafSensor> sensorList, SensorPressedCallback callback,SensorEditChangedCallback textChangedCallBack)
+    public SensorAdapter(Context context, ArrayList<LeafSensor> sensorList, SensorPressedCallback callback,SensorEditChangedCallback textChangedCallBack,
+                         SensorEditChangedCallback ssidChangedCallBack,SensorEditChangedCallback wifi_pwdChangedCallBack)
     {
         this.sensorList = sensorList;
         this.context = context;
         this.callback = callback;
         this.textChangedCallBack = textChangedCallBack;
+        this.ssidChangedCallBack = ssidChangedCallBack;
+        this.wifi_pwdChangedCallBack = wifi_pwdChangedCallBack;
     }
 
     @Override
@@ -109,6 +113,8 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             imgIcon.setImageResource(R.drawable.icon_6);
     }
     TextWatcher timeChanged = null;
+    TextWatcher ssidChanged = null;
+    TextWatcher pwdChanged = null;
     @Override
     public void onBindViewHolder(@NonNull SensorListItem holder, int position) {
         if (position < 0 || position >= sensorList.size()) return;
@@ -173,7 +179,49 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
                         }
                     }
                 };
+            if (ssidChanged==null)
+                ssidChanged = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (ssidChangedCallBack!=null)
+                        {
+                            ssidChangedCallBack.timeChanged(sensor,editable.toString(),position);
+                        }
+                    }
+                };
+            if (pwdChanged==null)
+                pwdChanged = new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                        if (wifi_pwdChangedCallBack!=null)
+                        {
+                            wifi_pwdChangedCallBack.timeChanged(sensor,editable.toString(),position);
+                        }
+                    }
+                };
             dataBind.edtTimeToBuzz.addTextChangedListener(timeChanged);
+            dataBind.edtWifiSSID.addTextChangedListener(ssidChanged);
+            dataBind.edtWifiPWD.addTextChangedListener(pwdChanged);
         }
 
     }
