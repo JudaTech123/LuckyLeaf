@@ -70,7 +70,8 @@
         app:layout_constraintStart_toStartOf="@id/listHolder"
         app:layout_constraintEnd_toEndOf="@id/listHolder"
         app:layout_constraintTop_toBottomOf="@id/listTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnAddSensor"
+        android:layout_marginBottom="10dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical"
         tools:listitem="@layout/item_sensor"
@@ -78,6 +79,15 @@
         android:adapter="@{sensorAdapter}"
         android:clipToPadding="false"
         />
+
+    <Button
+        android:id="@+id/btnAddSensor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Add Sensor"
+        android:onClick="@{clickListener}"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

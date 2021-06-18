@@ -9,7 +9,7 @@ import androidx.room.TypeConverters;
 
 import com.example.luckyleaf.dataholders.LeafSensor;
 
-@Database(entities = {LeafSensor.class}, version = 3, exportSchema = false)
+@Database(entities = {LeafSensor.class}, version = 5, exportSchema = false)
 @TypeConverters({SensorTypeConverterHelper.class})
 public abstract class DB extends RoomDatabase {
     private static DB INSTANCE;

@@ -24,6 +24,7 @@
             android:id="@+id/holder"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@drawable/item_open_background"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_margin="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -47,6 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
             android:textColor="#FFFFFFFF"
             android:gravity="start|center"
             tools:text="Back Door"
@@ -92,6 +94,27 @@
             android:layout_marginEnd="10dp"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,2)}"/>
 
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/imgSettings"
+            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
+            android:text="Connect to sensor"
+            android:layout_marginTop="15dp"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,12)}"
+            />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/imgSettings"
+            app:layout_constraintEnd_toEndOf="@id/imgSettings"
+            android:text="Delete sensor"
+            android:layout_marginTop="15dp"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,13)}"
+            />
         <com.example.luckyleaf.customview.AreaBox
             android:id="@+id/alertBox"
             app:layout_constraintStart_toStartOf="parent"
@@ -101,7 +124,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginTop="15dp"
-            app:layout_constraintTop_toBottomOf="@id/imgSettings" />
+            app:layout_constraintTop_toBottomOf="@id/btnConnect" />
         <TextView
             android:id="@+id/alertBoxTitle"
             android:layout_width="wrap_content"
@@ -133,7 +156,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
-            tools:src="@drawable/status_locked_not_selected"
+            tools:src="@drawable/status_open_not_selected"
             app:event_group_type="@{sensorData}"
             app:layout_constraintStart_toStartOf="@id/txtAlertPrompt"
             app:layout_constraintEnd_toStartOf="@id/alertUnLocked"
@@ -144,7 +167,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             app:layout_constraintTop_toBottomOf="@id/txtAlertPrompt"
-            tools:src="@drawable/status_open_not_selected"
+            tools:src="@drawable/status_locked_not_selected"
             app:event_group_type="@{sensorData}"
             app:layout_constraintEnd_toEndOf="@id/txtAlertPrompt"
             app:layout_constraintStart_toEndOf="@id/alertUnLocked"
@@ -169,7 +192,7 @@
             android:layout_height="0dp"
             android:layout_marginStart="15dp"
             android:layout_marginTop="12dp"
-            app:layout_constraintDimensionRatio="320:120"
+            app:layout_constraintDimensionRatio="320:140"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/alertBox"
             app:layout_constraintWidth_percent="0.9" />
@@ -234,7 +257,7 @@
             android:layout_marginEnd="10dp"
             app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:padding="10dp"
+            android:padding="5dp"
             tools:src="@drawable/track_active"
             android:src="@{sensorData.time_based_alarm_buzzer_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,3)}"/>
@@ -261,7 +284,7 @@
             android:layout_marginEnd="10dp"
             app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:padding="10dp"
+            android:padding="5dp"
             tools:src="@drawable/track_active"
             android:src="@{sensorData.time_based_alarm_mobile_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,4)}"/>
@@ -270,13 +293,12 @@
             android:id="@+id/HourBox"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.9"
-            app:layout_constraintDimensionRatio="320:120"
+            app:layout_constraintDimensionRatio="320:140"
             android:layout_marginStart="15dp"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="12dp"
             app:layout_constraintTop_toBottomOf="@id/timeBox"
-            app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="15dp"/>
 
         <TextView
@@ -297,6 +319,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/hourBoxTitle"
             app:layout_constraintStart_toStartOf="@id/HourBox"
+            app:layout_constraintBottom_toTopOf="@id/txtHourBuzzer"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
             android:text="Time in day to sound:"
@@ -310,11 +333,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="@id/txtHourTime"
-
             app:layout_constraintEnd_toEndOf="@id/imgHourBuzzer"
             android:text="Pick time"
             android:textSize="16dp"
-            android:textColor="#4444FF"
+            android:textColor="#EEEEFF"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,7)}"
             />
 
@@ -323,9 +345,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/txtHourTime"
-            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
+            app:layout_constraintBottom_toTopOf="@id/txtHourMobile"
+            app:layout_constraintStart_toStartOf="@id/txtHourTime"
             android:text="Buzzer"
             android:textSize="14dp"
             android:textColor="@color/white"
@@ -340,7 +361,7 @@
             android:layout_marginEnd="10dp"
             app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:padding="10dp"
+            android:padding="5dp"
             tools:src="@drawable/track_active"
             android:src="@{sensorData.hourly_based_alarm_buzzer_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,5)}"/>
@@ -349,10 +370,9 @@
             android:id="@+id/txtHourMobile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/imgHourBuzzer"
-            app:layout_constraintStart_toStartOf="@id/imgShortLogo"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="10dp"
+            app:layout_constraintTop_toBottomOf="@id/txtHourBuzzer"
+            app:layout_constraintBottom_toBottomOf="@id/HourBox"
+            app:layout_constraintStart_toStartOf="@id/txtHourTime"
             android:text="Mobile Sound"
             android:textSize="14dp"
             android:textColor="@color/white"
@@ -367,9 +387,119 @@
             android:layout_marginEnd="10dp"
             app:layout_constraintEnd_toEndOf="@id/timeBox"
             android:layout_marginStart="10dp"
-            android:padding="10dp"
+            android:padding="5dp"
             tools:src="@drawable/track_active"
             android:src="@{sensorData.hourly_based_alarm_mobile_enable ? @drawable/track_notactive : @drawable/track_active}"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,6)}"/>
+
+        <com.example.luckyleaf.customview.AreaBox
+            android:id="@+id/WifiConfBox"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintDimensionRatio="320:140"
+            android:layout_marginStart="15dp"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/HourBox"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="15dp"/>
+        <TextView
+            android:id="@+id/txtConfTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="@id/WifiConfBox"
+            app:layout_constraintStart_toStartOf="@id/WifiConfBox"
+            app:layout_constraintBottom_toTopOf="@id/WifiConfBox"
+            android:text="Sensor Net conf"
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+        <TextView
+            android:id="@+id/txtWifiSSIDTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtConfTitle"
+            app:layout_constraintStart_toStartOf="@id/WifiConfBox"
+            app:layout_constraintBottom_toTopOf="@id/txtWifiPWDTitle"
+            android:layout_marginStart="10dp"
+            android:text="SSID : "
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+
+        <EditText
+            android:id="@+id/edtWifiSSID"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.5"
+            app:layout_constraintTop_toTopOf="@id/txtWifiSSIDTitle"
+            app:layout_constraintBottom_toBottomOf="@id/txtWifiSSIDTitle"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:textSize="12dp"
+            android:text="@{sensorData.wifi_ssid}"
+            />
+
+        <TextView
+            android:id="@+id/txtWifiPWDTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtWifiSSIDTitle"
+            app:layout_constraintBottom_toTopOf="@id/txtWifiActiveTitle"
+            app:layout_constraintStart_toStartOf="@id/WifiConfBox"
+            android:layout_marginStart="10dp"
+            android:text="Pwassword : "
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+
+        <EditText
+            android:id="@+id/edtWifiPWDTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintWidth_percent="0.5"
+            app:layout_constraintTop_toTopOf="@id/txtWifiPWDTitle"
+            app:layout_constraintBottom_toBottomOf="@id/txtWifiPWDTitle"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:textSize="12dp"
+            android:text="@{sensorData.wifi_pswd}"
+            />
+
+        <TextView
+            android:id="@+id/txtWifiActiveTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtWifiPWDTitle"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/WifiConfBox"
+            android:layout_marginStart="10dp"
+            android:text="Active : "
+            android:textSize="14dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_reg"
+            />
+
+        <ImageView
+            android:id="@+id/imgWifiActive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            app:layout_constraintBottom_toBottomOf="@id/txtWifiActiveTitle"
+
+            android:layout_marginEnd="10dp"
+            app:layout_constraintEnd_toEndOf="@id/timeBox"
+            android:layout_marginStart="10dp"
+            android:padding="5dp"
+            tools:src="@drawable/track_active"
+            android:src="@{sensorData.active ? @drawable/track_notactive : @drawable/track_active}"
+            android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,11)}"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

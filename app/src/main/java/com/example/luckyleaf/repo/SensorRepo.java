@@ -106,7 +106,8 @@ public class SensorRepo {
             public void run() {
                 DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),System.currentTimeMillis(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
                         sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
-                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
+                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic(),
+                        sensorToUpdate.getWifi_ssid(),sensorToUpdate.getWifi_pswd());
             }
         });
         return true;
@@ -119,10 +120,21 @@ public class SensorRepo {
             public void run() {
                 DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensor.getStatus(),sensor.getUpdateDate(),sensor.getSensorName(),sensor.isActive(),
                         sensor.getState_event_group(),sensor.getTime_based_alarm_time_amount(),sensor.getTime_based_alarm_mobile_enable(),sensor.getTime_based_alarm_buzzer_enable(),
-                        sensor.getHourly_based_alarm_hour_min_time(),sensor.getHourly_based_alarm_mobile_enable(),sensor.getHourly_based_alarm_buzzer_enable(),sensor.getMqttTopic());
+                        sensor.getHourly_based_alarm_hour_min_time(),sensor.getHourly_based_alarm_mobile_enable(),sensor.getHourly_based_alarm_buzzer_enable(),sensor.getMqttTopic(),
+                        sensor.getWifi_ssid(),sensor.getWifi_pswd());
             }
         });
         return sensor.getStatus() == LeafStatus.alarm;
+    }
+    public boolean updateSensorWifi(LeafSensor sensor)
+    {
+        myApp.getSelf().getDbHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorWifiData(sensor.getWifi_ssid(),sensor.getWifi_pswd(),sensor.isActive(),sensor.getSensorName(),sensor.getMqttTopic());
+            }
+        });
+        return true;
     }
     public void updateAllSensorsToDB(final List<LeafSensor> sensorsList)
     {
@@ -131,7 +143,8 @@ public class SensorRepo {
             {
                 DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),sensorToUpdate.getUpdateDate(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
                         sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
-                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
+                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic(),
+                        sensorToUpdate.getWifi_ssid(),sensorToUpdate.getWifi_pswd());
             }
             sensors = new ArrayList<>(sensorsList);
         }));
@@ -141,7 +154,8 @@ public class SensorRepo {
         myApp.getSelf().getDbHandler().post(() -> DB.getDatabase(myApp.getSelf()).runInTransaction(() -> {
             DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),sensorToUpdate.getUpdateDate(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
                     sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
-                    sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic());
+                    sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic(),
+                    sensorToUpdate.getWifi_ssid(),sensorToUpdate.getWifi_pswd());
         }));
         sensors.get(index).updateItem(sensorToUpdate);
     }

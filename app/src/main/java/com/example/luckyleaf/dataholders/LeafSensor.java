@@ -47,6 +47,8 @@ public class LeafSensor {
     String     mqttTopic;
     @ColumnInfo(name = "sensorName")
     String     sensorName;
+    @ColumnInfo(name = "sensorSN")
+    String     sensorSN;
     @ColumnInfo(name = "active")
     boolean     active;
     @ColumnInfo(name = "updateDate")
@@ -66,12 +68,40 @@ public class LeafSensor {
     boolean      hourly_based_alarm_mobile_enable;
     @ColumnInfo(name = "hourly_based_alarm_buzzer_enable")
     boolean      hourly_based_alarm_buzzer_enable;
+    @ColumnInfo(name = "wifi_ssid")
+    String      wifi_ssid;
+    @ColumnInfo(name = "wifi_pswd")
+    String      wifi_pswd;
     @Ignore
     boolean     editMode;
     @Ignore
     boolean     notifyMobile;
     @Ignore
     boolean     notifySensor;
+
+    public void setSensorSN(String sensorSN) {
+        this.sensorSN = sensorSN;
+    }
+
+    public String getSensorSN() {
+        return sensorSN;
+    }
+
+    public void setWifi_pswd(String wifi_pswd) {
+        this.wifi_pswd = wifi_pswd;
+    }
+
+    public String getWifi_pswd() {
+        return wifi_pswd;
+    }
+
+    public void setWifi_ssid(String wifi_ssid) {
+        this.wifi_ssid = wifi_ssid;
+    }
+
+    public String getWifi_ssid() {
+        return wifi_ssid;
+    }
 
     public void setState_event_group(long event_group) {
         this.state_event_group = event_group;
@@ -350,10 +380,15 @@ public class LeafSensor {
         this.sensorName = sensorName;
         this.active = active;
     }
-
+    public void updateWifiSettings(String ssid,String wifi_pswd,boolean sensor_active)
+    {
+        wifi_ssid = ssid;
+        this.wifi_pswd = wifi_pswd;
+        this.active = sensor_active;
+    }
     public LeafSensor(String mqttTopic, String sensorName,LeafStatus status,long updateDate,boolean active,long time_based_alarm_time_amount,
                       boolean time_based_alarm_mobile_enable,boolean time_based_alarm_buzzer_enable, long hourly_based_alarm_hour_min_time,
-                      boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable)
+                      boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable,String wifi_ssid,String wifi_pswd)
     {
         this.mqttTopic = mqttTopic;
         this.sensorName = sensorName;
@@ -366,6 +401,8 @@ public class LeafSensor {
         this.hourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
         this.hourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
         this.hourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
+        this.wifi_pswd = wifi_pswd;
+        this.wifi_ssid = wifi_ssid;
         switch (status)
         {
             case open:
@@ -380,26 +417,19 @@ public class LeafSensor {
         }
     }
 
-    /**
-     * {
-     * 	"state_event_group":	2,
-     * 	"timer_based":	{
-     * 		"value_second":	5,
-     * 		"sound_enable":	0,
-     * 		"mobap_enable":	1
-     *        },
-     * 	"hour_based":	{
-     * 		"value_second":	86409,
-     * 		"sound_enable":	0,
-     * 		"mobap_enable":	0
-     *    }
-     * }
-     * @return
-     */
-    public String getSettingsAsJson()
+    public LeafSensor(String SN, String sensorName)
+    {
+        this.sensorSN = SN;
+        this.sensorName = sensorName;
+        this.mqttTopic = "event";
+        this.active = true;
+    }
+
+    public String getSettingsAsJson(boolean forHTTP)
     {
         StringBuilder settings = new StringBuilder();
-        settings.append("{\"notification_configuration\":");
+        if (forHTTP)
+            settings.append("{\"notification_configuration\":");
         settings.append("{\"state_event_group\":");
         settings.append("" + state_event_group + ",");
         settings.append("\"timer_based\": {");
@@ -409,24 +439,20 @@ public class LeafSensor {
         settings.append("\"hour_based\": {");
         settings.append("\"value_second\": " + hourly_based_alarm_hour_min_time + ",");
         settings.append("\"sound_enable\": " + (hourly_based_alarm_buzzer_enable ? "1" : "0") + ",");
-        settings.append("\"mobap_enable\": " + (hourly_based_alarm_mobile_enable ? "1" : "0") + "}}}");
+        settings.append("\"mobap_enable\": " + (hourly_based_alarm_mobile_enable ? "1" : "0") + "}}");
+        if (forHTTP)
+            settings.append("}");
         return settings.toString();
     }
 
-    /**
-     * {
-     *    "notification_configuration":{
-     *       "state_event_group":2,
-     *       "timer_based":{
-     *          "value_second":120,
-     *          "sound_enable":1,
-     *          "mobap_enable":0
-     *       },
-     *       "hour_based":{
-     *          "value_second":86400,
-     *          "sound_enable":0,
-     *          "mobap_enable":0
-     *       }
-     *    }
-     */
+    public String getWifiSettingsAsJson()
+    {
+        StringBuilder settings = new StringBuilder();
+        settings.append("{\"online_mode_configuration\": {");
+        settings.append("\"ssid\": \"" + wifi_ssid + "\",");
+        settings.append("\"pswd\": \"" + wifi_pswd + "\",");
+        settings.append("\"enable\": " + (active ? "1" : "0") + "}}");
+        return settings.toString();
+    }
+
 }

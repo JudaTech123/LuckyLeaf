@@ -144,8 +144,8 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             dataBind.edtTimeToBuzz.setText(sensor.getTime_based_alarm_time_amount() + "");
             long currHourMin = sensor.getHourly_based_alarm_hour_min_time();
             if (currHourMin!=0) {
-                int hour = (int) currHourMin / 100;
-                int min = (int) currHourMin % 100;
+                int hour = (int) currHourMin / 60;
+                int min = (int) currHourMin - (hour * 60);
                 dataBind.txtTimeInDay.setText(hour + ":" + min);
             }
             else

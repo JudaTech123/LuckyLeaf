@@ -1,20 +1,28 @@
 package com.example.luckyleaf.fragments;
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -31,7 +39,13 @@ import com.example.luckyleaf.adapter.SensorAdapter;
 import com.example.luckyleaf.adapter.SensorViewHolder;
 import com.example.luckyleaf.databinding.FragmentSensorListBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.network.Api;
+import com.example.luckyleaf.network.NetworkConnector;
+import com.example.luckyleaf.network.responsemodels.SettingsResponsemodel;
+import com.example.luckyleaf.network.responsemodels.SettingsWifiResponsemodel;
 import com.example.luckyleaf.repo.SensorRepo;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +56,41 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     private Handler dbUpdaterHandler;
     private void sendSettingsToSensor(LeafSensor sensor)
     {
-        Intent mqttService = new Intent(requireContext(), BackGroundService.class);
-        mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            requireContext().startForegroundService(mqttService);
-        }
+        if (Api.instance().isConnectedToSensor())
+            sendSettingsHTTP(sensor);
         else
-            requireContext().startService(mqttService);
+        {
+            Intent mqttService = new Intent(requireContext(), BackGroundService.class);
+            mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson(false));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireContext().startForegroundService(mqttService);
+            }
+            else
+                requireContext().startService(mqttService);
+        }
+    }
+    private void sendSettingsHTTP(LeafSensor sensor)
+    {
+        pd = new ProgressDialog(requireActivity());
+        pd.setMessage("sending data...");
+        pd.setCancelable(false);
+        pd.show();
+        Api.instance().sendSensorWifiSettings(sensor.getWifiSettingsAsJson()).observe(getViewLifecycleOwner(), new Observer<SettingsWifiResponsemodel>() {
+            @Override
+            public void onChanged(SettingsWifiResponsemodel settingsWifiResponsemodel) {
+                if (settingsWifiResponsemodel==null)
+                {
+                    pd.dismiss();
+                    return;
+                }
+                Api.instance().sendSettingsToSensor(sensor.getSettingsAsJson(true)).observe(getViewLifecycleOwner(), new Observer<SettingsResponsemodel>() {
+                    @Override
+                    public void onChanged(SettingsResponsemodel settingsResponsemodel) {
+                        pd.dismiss();
+                    }
+                });
+            }
+        });
     }
     @Nullable
     @Override
@@ -142,14 +184,14 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 {
 
                     long currHourMin = sensor.getHourly_based_alarm_hour_min_time();
-                    int hour = (int)currHourMin / 100;
-                    int min = (int)currHourMin % 100;
+                    int hour = (int)currHourMin / 60;
+                    int min = (int)(currHourMin - hour * 60);
                     TimePickerDialog timePickerDialog = new TimePickerDialog(getActivity(),
                             new TimePickerDialog.OnTimeSetListener() {
                                 @Override
                                 public void onTimeSet(TimePicker view, int hourOfDay,
                                                       int minute) {
-                                    sensor.setHourly_based_alarm_hour_min_time(hourOfDay*100 + minute);
+                                    sensor.setHourly_based_alarm_hour_min_time(hourOfDay*60 + minute);
                                     adapter.updateItem(sensor,index);
                                     Message msg = Message.obtain();
                                     msg.what = index;
@@ -185,6 +227,35 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     msg.what = index;
                     msg.obj = sensor;
                     dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                }
+                if (i==11)//network active
+                {
+                    sensor.toggleActive();
+                    adapter.notifyItemChanged(index);
+                    Message msg = Message.obtain();
+                    msg.what = index;
+                    msg.obj = sensor;
+                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                }
+                if (i==12)//connect to sensor hot spot
+                {
+                    if (Api.instance().isConnectedToSensor())
+                        Api.instance().disconnectFromSensorWifi(requireContext(),sensor);
+                    else {
+                        if (Api.instance().connectToSensorWifi(requireContext(), sensor))
+                        {
+                            pd = new ProgressDialog(requireActivity());
+                            pd.setMessage("loading");
+                            pd.setCancelable(false);
+                            pd.show();
+                            connectToSensor(sensor,index);
+                        }
+                    }
+                }
+                if (i==13)//remove sensor
+                {
+                    SensorRepo.getInstane().removeSensor(sensor);
+                    adapter.updateSensorList(SensorRepo.getInstane().getSensors());
                 }
                 return;
             }
@@ -231,8 +302,78 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (!checkIfAlreadyhavePermission()) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }
+    }
+    private boolean checkIfAlreadyhavePermission() {
+        int result = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (!checkIfAlreadyhavePermission()) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }
+    }
+
+    private void checkPermission()
+    {
+        if (!checkIfAlreadyhavePermission()) {
+            ActivityCompat.requestPermissions(requireActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
+        }
+    }
+    ProgressDialog pd;
+    private void connectToSensor(LeafSensor sensor,int index)
+    {
+        Api.instance().askSensorWifiSettings().observe(getViewLifecycleOwner(), new Observer<SettingsWifiResponsemodel>() {
+            @Override
+            public void onChanged(SettingsWifiResponsemodel settingsWifiResponsemodel) {
+                if (settingsWifiResponsemodel==null)
+                {
+                    pd.dismiss();
+                    return;
+                }
+                sensor.setWifi_pswd(settingsWifiResponsemodel.getPswd());
+                sensor.setWifi_ssid(settingsWifiResponsemodel.getSsid());
+                Api.instance().askSettingsToSensor().observe(getViewLifecycleOwner(), new Observer<SettingsResponsemodel>() {
+                    @Override
+                    public void onChanged(SettingsResponsemodel settingsResponsemodel) {
+                        if (settingsResponsemodel==null)
+                        {
+                            pd.dismiss();
+                            return;
+                        }
+                        sensor.setState_event_group(settingsResponsemodel.getState_event_group());
+
+                        sensor.setTime_based_alarm_buzzer_enable(settingsResponsemodel.getTimer_based().getSound_enable() == 1);
+                        sensor.setTime_based_alarm_mobile_enable(settingsResponsemodel.getTimer_based().getMobap_enable() == 1);
+                        sensor.setTime_based_alarm_time_amount(settingsResponsemodel.getTimer_based().getValue_second());
+
+                        sensor.setHourly_based_alarm_hour_min_time(settingsResponsemodel.getHour_based().getValue_second());
+                        sensor.setHourly_based_alarm_mobile_enable(settingsResponsemodel.getHour_based().getMobap_enable() == 1);
+                        sensor.setHourly_based_alarm_buzzer_enable(settingsResponsemodel.getHour_based().getSound_enable()==1);
+                        SensorRepo.getInstane().updateSensor(sensor);
+                        adapter.notifyItemChanged(index);
+                        pd.dismiss();
+                    }
+                });
+            }
+        });
+    }
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.imgMenu)
@@ -240,6 +381,24 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
             NavController navController = Navigation.findNavController(getActivity(), R.id.host_fragment);
             Bundle args = new Bundle();
             navController.navigate(R.id.action_startFragment_to_settingsScreen, args, null);
+        }
+        if (view.getId() == R.id.btnAddSensor)
+        {
+            final View input = getLayoutInflater().inflate(R.layout.dialog_add_sensor, null);
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(requireActivity());
+            alertDialog.setTitle("Add sensor");
+            alertDialog.setMessage("Please enter sensor name and S.N");
+            alertDialog.setView(input);
+            final EditText edtSensorSN = ((EditText)input.findViewById(R.id.edtSensorSN));
+            final EditText edtSensorName = ((EditText)input.findViewById(R.id.edtSensorName));
+            alertDialog.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    LeafSensor sensor = new LeafSensor(edtSensorSN.getText().toString(),edtSensorName.getText().toString());
+                    SensorRepo.getInstane().addSensor(sensor);
+                    adapter.updateSensorList(SensorRepo.getInstane().getSensors());
+                }
+            });
+            alertDialog.show();
         }
     }
 }

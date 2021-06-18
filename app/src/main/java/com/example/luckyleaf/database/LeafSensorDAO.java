@@ -30,8 +30,13 @@ public interface LeafSensorDAO {
             "time_based_alarm_time_amount = :time_based_alarm_time_amount, state_event_group = :event_group , " +
             "time_based_alarm_mobile_enable = :time_based_alarm_mobile_enable , time_based_alarm_buzzer_enable = :time_based_alarm_buzzer_enable," +
             "hourly_based_alarm_hour_min_time =:hourly_based_alarm_hour_min_time , hourly_based_alarm_mobile_enable=:hourly_based_alarm_mobile_enable," +
-            "hourly_based_alarm_buzzer_enable =:hourly_based_alarm_buzzer_enable WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
+            "hourly_based_alarm_buzzer_enable =:hourly_based_alarm_buzzer_enable, wifi_ssid=:wifi_ssid, wifi_pswd =:wifi_pwd " +
+            "WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
     void updateSensorData(LeafStatus status,long updateTime,String sensorName,boolean active,long event_group,
                           long time_based_alarm_time_amount,boolean time_based_alarm_mobile_enable, boolean time_based_alarm_buzzer_enable,
-                          long hourly_based_alarm_hour_min_time,boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable,String sensorMqqt);
+                          long hourly_based_alarm_hour_min_time,boolean hourly_based_alarm_mobile_enable,boolean hourly_based_alarm_buzzer_enable,String sensorMqqt,
+                          String wifi_ssid,String wifi_pwd);
+
+    @Query("UPDATE LeafSensor SET wifi_ssid = :wifi_ssid , wifi_pswd =:wifi_pwd , active = :sensor_active WHERE sensorName = :sensorName AND mqttTopic = :sensorMqqt")
+    void updateSensorWifiData(String wifi_ssid,String wifi_pwd,boolean sensor_active,String sensorName,String sensorMqqt);
 }
