@@ -30,7 +30,9 @@ import com.example.luckyleaf.dataholders.LeafSensor;
 import com.example.luckyleaf.dataholders.LeafStatus;
 import com.example.luckyleaf.dataholders.MqttMessage;
 import com.example.luckyleaf.network.MqqtApi;
+import com.example.luckyleaf.network.responsemodels.SettingsResponsemodel;
 import com.example.luckyleaf.repo.SensorRepo;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -55,7 +57,7 @@ public class BackGroundService extends LifecycleService {
         String channelName = "Sensor monitor app";
         NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
         // omitted the LED color
-        channel.setImportance(NotificationManager.IMPORTANCE_NONE);
+        channel.setImportance(NotificationManager.IMPORTANCE_HIGH);
         channel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
         notificationManager.createNotificationChannel(channel);
         return channelId;
@@ -229,15 +231,17 @@ public class BackGroundService extends LifecycleService {
             if (leafSensor==null) return;
         }
         boolean isStatusChanged = SensorRepo.getInstane().updateSensor(mqttMessage,leafSensor);
+//        sendSettingsToSensor(leafSensor.getSettingsAsJson(false));
         if (!isStatusChanged) return;
         switch (leafSensor.getStatus())
         {
             case alarm:
             case unlocked:
+            case open:
                 notifyAlarm(leafSensor, leafSensor.getStatusAsString());
                 triggerSensorAlramBasedOnTime(leafSensor);
                 break;
-            case open:
+            case locked:
                 removeTimers(leafSensor);
                 break;
         }
@@ -311,14 +315,26 @@ public class BackGroundService extends LifecycleService {
     }
     private void processMqttSettingsMessage(MqttMessage mqttMessage)
     {
-        MqqtApi.getInstance().unsubscribe(mqttMessage.getTopic());
         LeafSensor leafSensor = null;
         synchronized (sensorUpdate)
         {
             for (LeafSensor sensorItem : sensors)
             {
-                if (mqttMessage.getTopic().equals(sensorItem.getMqttTopic())) {
-                    leafSensor = sensorItem;
+                if (mqttMessage.getTopic().equals("response")) {
+                    Log.d("juda", "settings Json = " + mqttMessage.getMessage());
+                    SettingsResponsemodel.notification_configuration_holder data = new Gson().fromJson(mqttMessage.getMessage(), SettingsResponsemodel.notification_configuration_holder.class);
+                    if (data.getTimer_based()==null)
+                        return;
+                    sensorItem.setState_event_group(data.getState_event_group());
+
+                    sensorItem.setTime_based_alarm_buzzer_enable(data.getTimer_based().getSound_enable() == 1);
+                    sensorItem.setTime_based_alarm_mobile_enable(data.getTimer_based().getMobap_enable() == 1);
+                    sensorItem.setTime_based_alarm_time_amount(data.getTimer_based().getValue_second());
+
+                    sensorItem.setHourly_based_alarm_hour_min_time(data.getHour_based().getValue_second());
+                    sensorItem.setHourly_based_alarm_mobile_enable(data.getHour_based().getMobap_enable() == 1);
+                    sensorItem.setHourly_based_alarm_buzzer_enable(data.getHour_based().getSound_enable()==1);
+                    SensorRepo.getInstane().updateSensor(sensorItem);
                     break;
                 }
             }

@@ -165,7 +165,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener {
             LeafSensor markedItem = dataBinding.getAdapter().getMarkedItem();
             if (markedItem!=null)
             {
-                Api.instance().sendSettingsToSensor(markedItem.getSettingsAsJson(true)).observe(getViewLifecycleOwner(), settingsResponsemodel -> {
+                Api.instance().sendSettingsToSensor(markedItem.getSettingsAsJson()).observe(getViewLifecycleOwner(), settingsResponsemodel -> {
                     if (settingsResponsemodel==null) return;
                     markedItem.setState_event_group(settingsResponsemodel.getState_event_group());
 

@@ -56,12 +56,13 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     private Handler dbUpdaterHandler;
     private void sendSettingsToSensor(LeafSensor sensor)
     {
+        if (!sensor.isNotifactionSettingsChanged())return;
         if (Api.instance().isConnectedToSensor())
             sendSettingsHTTP(sensor);
         else
         {
             Intent mqttService = new Intent(requireContext(), BackGroundService.class);
-            mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson(false));
+            mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireContext().startForegroundService(mqttService);
             }
@@ -69,29 +70,41 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 requireContext().startService(mqttService);
         }
     }
+    private void sendWifiSettingHTTPLeafSensorsensor(LeafSensor sensor)
+    {
+        if (sensor.isWifiSettingsChanged())
+        {
+            Api.instance().sendSensorWifiSettings(sensor.getWifiSettingsAsJson()).observe(getViewLifecycleOwner(), settingsWifiResponsemodel -> {
+                if (settingsWifiResponsemodel==null)
+                {
+                    pd.dismiss();
+                    return;
+                }
+                sendNotifactionSettingHTTP(sensor);
+            });
+        }
+        else
+            sendNotifactionSettingHTTP(sensor);
+
+    }
+    private void sendNotifactionSettingHTTP(LeafSensor sensor)
+    {
+        if (sensor.isNotifactionSettingsChanged())
+        {
+            Api.instance().sendSettingsToSensor(sensor.getSettingsAsJson()).observe(getViewLifecycleOwner(), settingsResponsemodel -> pd.dismiss());
+        }
+        else
+            pd.dismiss();
+    }
     private void sendSettingsHTTP(LeafSensor sensor)
     {
         pd = new ProgressDialog(requireActivity());
         pd.setMessage("sending data...");
         pd.setCancelable(false);
         pd.show();
-        Api.instance().sendSensorWifiSettings(sensor.getWifiSettingsAsJson()).observe(getViewLifecycleOwner(), new Observer<SettingsWifiResponsemodel>() {
-            @Override
-            public void onChanged(SettingsWifiResponsemodel settingsWifiResponsemodel) {
-                if (settingsWifiResponsemodel==null)
-                {
-                    pd.dismiss();
-                    return;
-                }
-                Api.instance().sendSettingsToSensor(sensor.getSettingsAsJson(true)).observe(getViewLifecycleOwner(), new Observer<SettingsResponsemodel>() {
-                    @Override
-                    public void onChanged(SettingsResponsemodel settingsResponsemodel) {
-                        pd.dismiss();
-                    }
-                });
-            }
-        });
+        sendWifiSettingHTTPLeafSensorsensor(sensor);
     }
+    private int delayTimeUntilDataSend = 3000;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -151,7 +164,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==4)//timer event mobile enable
                 {
@@ -160,7 +173,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==5)//timer event buzzer enable
                 {
@@ -169,7 +182,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==6)//timer event mobile enable
                 {
@@ -178,7 +191,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==7)//timer event mobile enable
                 {
@@ -196,7 +209,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                                     Message msg = Message.obtain();
                                     msg.what = index;
                                     msg.obj = sensor;
-                                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                                 }
                             }, hour, min, true);
                     timePickerDialog.show();
@@ -208,7 +221,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==10)//event_group locked
                 {
@@ -217,7 +230,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==9)//event_group unlocked
                 {
@@ -226,7 +239,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==11)//network active
                 {
@@ -235,7 +248,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     Message msg = Message.obtain();
                     msg.what = index;
                     msg.obj = sensor;
-                    dbUpdaterHandler.sendMessageDelayed(msg,1500);
+                    dbUpdaterHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
                 }
                 if (i==12)//connect to sensor hot spot
                 {
@@ -278,7 +291,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 Message msg = Message.obtain();
                 msg.what = index;
                 msg.obj = sensor;
-                delayedHandler.sendMessageDelayed(msg,1500);
+                delayedHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
             }
         };
         SensorAdapter.SensorEditChangedCallback ssidChangedListener = (sensor, text, index) -> {
@@ -290,7 +303,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 Message msg = Message.obtain();
                 msg.what = index;
                 msg.obj = sensor;
-                delayedHandler.sendMessageDelayed(msg,1500);
+                delayedHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
             }
         };
         SensorAdapter.SensorEditChangedCallback pwdChangedListener = (sensor, text, index) -> {
@@ -302,7 +315,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 Message msg = Message.obtain();
                 msg.what = index;
                 msg.obj = sensor;
-                delayedHandler.sendMessageDelayed(msg,1500);
+                delayedHandler.sendMessageDelayed(msg,delayTimeUntilDataSend);
             }
         };
         adapter = new SensorAdapter(requireContext(), SensorRepo.getInstane().getSensors(), openFullScreen,textChangedListener,ssidChangedListener,pwdChangedListener);

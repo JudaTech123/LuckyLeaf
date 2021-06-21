@@ -1,5 +1,7 @@
 package com.example.luckyleaf.dataholders;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -78,6 +80,27 @@ public class LeafSensor {
     boolean     notifyMobile;
     @Ignore
     boolean     notifySensor;
+    @Ignore
+    boolean     tmpActive;
+    @Ignore
+    String      tmpWifi_ssid;
+    @Ignore
+    String      tmpWifi_pswd;
+    @Ignore
+    boolean     tmpHourly_based_alarm_buzzer_enable;
+    @Ignore
+    boolean     tmpHourly_based_alarm_mobile_enable;
+    @Ignore
+    long        tmpHourly_based_alarm_hour_min_time;
+    @Ignore
+    boolean     tmpTime_based_alarm_buzzer_enable;
+    @Ignore
+    boolean     tmpTime_based_alarm_mobile_enable;
+    @Ignore
+    long        tmpState_event_group;
+    @Ignore
+    long        tmpTime_based_alarm_time_amount;
+
 
     public void setSensorSN(String sensorSN) {
         this.sensorSN = sensorSN;
@@ -89,26 +112,28 @@ public class LeafSensor {
 
     public void setWifi_pswd(String wifi_pswd) {
         this.wifi_pswd = wifi_pswd;
+        tmpWifi_pswd = wifi_pswd;
     }
 
     public String getWifi_pswd() {
-        return wifi_pswd;
+        return tmpWifi_pswd;
     }
 
     public void setWifi_ssid(String wifi_ssid) {
+        tmpWifi_ssid = wifi_ssid;
         this.wifi_ssid = wifi_ssid;
     }
 
     public String getWifi_ssid() {
-        return wifi_ssid;
+        return tmpWifi_ssid;
     }
 
     public void setState_event_group(long event_group) {
-        this.state_event_group = event_group;
+        this.tmpState_event_group = event_group;
     }
 
     public long getState_event_group() {
-        return state_event_group;
+        return tmpState_event_group;
     }
 
     public boolean isNotifyMobile() {
@@ -140,45 +165,45 @@ public class LeafSensor {
     }
 
     public void setTime_based_alarm_buzzer_enable(boolean time_based_alarm_buzzer_enable) {
-        this.time_based_alarm_buzzer_enable = time_based_alarm_buzzer_enable;
+        this.tmpTime_based_alarm_buzzer_enable = time_based_alarm_buzzer_enable;
     }
     public boolean getTime_based_alarm_buzzer_enable() {
-        return time_based_alarm_buzzer_enable;
+        return tmpTime_based_alarm_buzzer_enable;
     }
 
     public void setTime_based_alarm_mobile_enable(boolean time_based_alarm_mobile_enable) {
-        this.time_based_alarm_mobile_enable = time_based_alarm_mobile_enable;
+        this.tmpTime_based_alarm_mobile_enable = time_based_alarm_mobile_enable;
     }
     public boolean getTime_based_alarm_mobile_enable() {
-        return time_based_alarm_mobile_enable;
+        return tmpTime_based_alarm_mobile_enable;
     }
 
     public long getTime_based_alarm_time_amount() {
-        return time_based_alarm_time_amount;
+        return tmpTime_based_alarm_time_amount;
     }
 
     public void setHourly_based_alarm_hour_min_time(long hourly_based_alarm_hour_min_time) {
-        this.hourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
+        this.tmpHourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
     }
     //hour*60+min. this will tell us what min and hour to check if sensor is not locked
     public long getHourly_based_alarm_hour_min_time() {
-        return hourly_based_alarm_hour_min_time;
+        return tmpHourly_based_alarm_hour_min_time;
     }
 
     public void setHourly_based_alarm_buzzer_enable(boolean hourly_based_alarm_buzzer_enable) {
-        this.hourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
+        this.tmpHourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
     }
     public boolean getHourly_based_alarm_buzzer_enable()
     {
-        return hourly_based_alarm_buzzer_enable;
+        return tmpHourly_based_alarm_buzzer_enable;
     }
 
     public void setHourly_based_alarm_mobile_enable(boolean hourly_based_alarm_mobile_enable) {
-        this.hourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
+        this.tmpHourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
     }
     public boolean getHourly_based_alarm_mobile_enable()
     {
-        return hourly_based_alarm_mobile_enable;
+        return tmpHourly_based_alarm_mobile_enable;
     }
 
     @Ignore
@@ -228,11 +253,11 @@ public class LeafSensor {
     }
 
     public boolean isActive() {
-        return active;
+        return tmpActive;
     }
     public void toggleActive()
     {
-        active = !active;
+        tmpActive = !tmpActive;
     }
     public boolean hasStatus()
     {
@@ -338,24 +363,49 @@ public class LeafSensor {
                 return strStatus;
         }
     }
+
+    /**
+     * This function will check if the status is in the allowed event group:
+     * open == 1
+     * lock == 4
+     * closed == 2
+     * @param status what status we got
+     * @return true is we should continue process status
+     */
+    public boolean isStatusAllowed(String status)
+    {
+        //open      == 1
+        //lock      == 4
+        //closed    == 2
+        Log.d("isStatusAllowed","status = " + status + " getState_event_group = " + getState_event_group());
+        if (status.equals("opened") && (getState_event_group() & 1)!=0)
+            return true;
+        if (status.equals("locked") && (getState_event_group() & 4)!=0)
+            return true;
+        if (status.equals("closed") && (getState_event_group() & 2)!=0)
+            return true;
+        return false;
+    }
     public boolean isSameStatus(String strStatusData)
     {
         LeafStatus tmpStatus = LeafStatus.unknown;
-        MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(strStatusData,MqqtMessageResponseModel.class);
-        this.strStatus = mqqtMessageData.getState();
-        if (strStatus.equalsIgnoreCase("opened"))
-            tmpStatus = LeafStatus.open;
-        else if (strStatus.equalsIgnoreCase("locked"))
-            tmpStatus = LeafStatus.locked;
-        else if (strStatus.equalsIgnoreCase("closed"))
-            tmpStatus = LeafStatus.unlocked;
-        else if (strStatus.equalsIgnoreCase("alarm"))
-            tmpStatus = LeafStatus.alarm;
-        return tmpStatus.equals(status);
+        try {
+            MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(strStatusData, MqqtMessageResponseModel.class);
+
+            this.strStatus = mqqtMessageData.getState();
+            if (strStatus.equalsIgnoreCase("opened"))
+                tmpStatus = LeafStatus.open;
+            else if (strStatus.equalsIgnoreCase("locked"))
+                tmpStatus = LeafStatus.locked;
+            else if (strStatus.equalsIgnoreCase("closed"))
+                tmpStatus = LeafStatus.unlocked;
+            else if (strStatus.equalsIgnoreCase("alarm"))
+                tmpStatus = LeafStatus.alarm;
+            return tmpStatus.equals(status);
+        }catch (Exception ignore){return true;}
     }
-    public void processStatus(String strStatusData)
+    public void processStatus(MqqtMessageResponseModel mqqtMessageData)
     {
-        MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(strStatusData,MqqtMessageResponseModel.class);
         this.strStatus = mqqtMessageData.getState();
         if (strStatus.equalsIgnoreCase("opened"))
             status = LeafStatus.open;
@@ -415,6 +465,17 @@ public class LeafSensor {
             default:
                 strStatus = "";
         }
+
+        tmpActive = active;
+        tmpWifi_ssid = wifi_ssid;
+        tmpWifi_pswd = wifi_pswd;
+        tmpHourly_based_alarm_buzzer_enable = hourly_based_alarm_buzzer_enable;
+        tmpHourly_based_alarm_mobile_enable = hourly_based_alarm_mobile_enable;
+        tmpHourly_based_alarm_hour_min_time = hourly_based_alarm_hour_min_time;
+        tmpTime_based_alarm_buzzer_enable = time_based_alarm_buzzer_enable;
+        tmpTime_based_alarm_mobile_enable = time_based_alarm_mobile_enable;
+        tmpState_event_group = state_event_group;
+        tmpTime_based_alarm_time_amount = time_based_alarm_time_amount;
     }
 
     public LeafSensor(String SN, String sensorName)
@@ -425,10 +486,30 @@ public class LeafSensor {
         this.active = true;
     }
 
-    public String getSettingsAsJson(boolean forHTTP)
+    public boolean isNotifactionSettingsChanged()
     {
+        if (state_event_group!=tmpState_event_group) return true;
+        if (time_based_alarm_time_amount!=tmpTime_based_alarm_time_amount) return true;
+        if (time_based_alarm_buzzer_enable!=tmpTime_based_alarm_buzzer_enable) return true;
+        if (time_based_alarm_mobile_enable!=tmpTime_based_alarm_mobile_enable) return true;
+        if (hourly_based_alarm_hour_min_time!=tmpHourly_based_alarm_hour_min_time) return true;
+        if (hourly_based_alarm_buzzer_enable!=tmpHourly_based_alarm_buzzer_enable) return true;
+        if (hourly_based_alarm_mobile_enable!=tmpHourly_based_alarm_mobile_enable) return true;
+        return false;
+    }
+
+    public String getSettingsAsJson()
+    {
+        state_event_group = tmpState_event_group;
+        time_based_alarm_time_amount = tmpTime_based_alarm_time_amount;
+        time_based_alarm_buzzer_enable = tmpTime_based_alarm_buzzer_enable;
+        time_based_alarm_mobile_enable = tmpTime_based_alarm_mobile_enable;
+        hourly_based_alarm_hour_min_time = tmpHourly_based_alarm_hour_min_time;
+        hourly_based_alarm_buzzer_enable = tmpHourly_based_alarm_buzzer_enable;
+        hourly_based_alarm_mobile_enable = tmpHourly_based_alarm_mobile_enable;
+
         StringBuilder settings = new StringBuilder();
-        if (forHTTP)
+//        if (forHTTP)
             settings.append("{\"notification_configuration\":");
         settings.append("{\"state_event_group\":");
         settings.append("" + state_event_group + ",");
@@ -440,13 +521,25 @@ public class LeafSensor {
         settings.append("\"value_second\": " + hourly_based_alarm_hour_min_time + ",");
         settings.append("\"sound_enable\": " + (hourly_based_alarm_buzzer_enable ? "1" : "0") + ",");
         settings.append("\"mobap_enable\": " + (hourly_based_alarm_mobile_enable ? "1" : "0") + "}}");
-        if (forHTTP)
+//        if (forHTTP)
             settings.append("}");
         return settings.toString();
     }
 
+    public boolean isWifiSettingsChanged()
+    {
+        if (!wifi_ssid.equals(tmpWifi_ssid)) return true;
+        if (!wifi_pswd.equals(tmpWifi_pswd)) return true;
+        if (active!=tmpActive) return true;
+
+        return false;
+    }
+
     public String getWifiSettingsAsJson()
     {
+        wifi_ssid = tmpWifi_ssid;
+        wifi_pswd = tmpWifi_pswd;
+        active = tmpActive;
         StringBuilder settings = new StringBuilder();
         settings.append("{\"online_mode_configuration\": {");
         settings.append("\"ssid\": \"" + wifi_ssid + "\",");

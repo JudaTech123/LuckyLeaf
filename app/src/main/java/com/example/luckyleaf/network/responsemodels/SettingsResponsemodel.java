@@ -18,7 +18,7 @@ public class SettingsResponsemodel {
         return notification_configuration!=null ? notification_configuration.getTimer_based() : new value_holder();
     }
 
-    class notification_configuration_holder
+    public class notification_configuration_holder
     {
         @SerializedName("state_event_group")
         int state_event_group;

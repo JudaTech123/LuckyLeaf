@@ -7,8 +7,10 @@ import com.example.luckyleaf.PrefsHelper;
 import com.example.luckyleaf.database.DB;
 import com.example.luckyleaf.dataholders.LeafSensor;
 import com.example.luckyleaf.dataholders.LeafStatus;
+import com.example.luckyleaf.dataholders.MqqtMessageResponseModel;
 import com.example.luckyleaf.dataholders.MqttMessage;
 import com.example.luckyleaf.myApp;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,26 +93,33 @@ public class SensorRepo {
      */
     public boolean updateSensor(MqttMessage msg,LeafSensor _sensor)
     {
-        LeafSensor sensor = getSensor(msg.getTopic());
-        if (_sensor!=null)
-            sensor = _sensor;
-        if (sensor==null)
+        try {
+            LeafSensor sensor = getSensor(msg.getTopic());
+            if (_sensor != null)
+                sensor = _sensor;
+            if (sensor == null)
+                return false;
+            final LeafSensor sensorToUpdate = sensor;
+            String statusStr = msg.getMessage();
+            if (sensor.isSameStatus(statusStr))
+                return false;
+            MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(statusStr, MqqtMessageResponseModel.class);
+            if (!sensor.isStatusAllowed(mqqtMessageData.getState()))
+                return false;
+            sensorToUpdate.processStatus(mqqtMessageData);
+            myApp.getSelf().getDbHandler().post(new Runnable() {
+                @Override
+                public void run() {
+                    DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(), System.currentTimeMillis(), sensorToUpdate.getSensorName(), sensorToUpdate.isActive(),
+                            sensorToUpdate.getState_event_group(), sensorToUpdate.getTime_based_alarm_time_amount(), sensorToUpdate.getTime_based_alarm_mobile_enable(), sensorToUpdate.getTime_based_alarm_buzzer_enable(),
+                            sensorToUpdate.getHourly_based_alarm_hour_min_time(), sensorToUpdate.getHourly_based_alarm_mobile_enable(), sensorToUpdate.getHourly_based_alarm_buzzer_enable(), sensorToUpdate.getMqttTopic(),
+                            sensorToUpdate.getWifi_ssid(), sensorToUpdate.getWifi_pswd());
+                }
+            });
+            return true;
+        }catch (Exception ignore){
             return false;
-        final LeafSensor sensorToUpdate = sensor;
-        String statusStr = msg.getMessage();
-        if (sensor.isSameStatus(statusStr))
-            return false;
-        sensorToUpdate.processStatus(statusStr);
-        myApp.getSelf().getDbHandler().post(new Runnable() {
-            @Override
-            public void run() {
-                DB.getDatabase(myApp.getSelf()).leafSensorDAO().updateSensorData(sensorToUpdate.getStatus(),System.currentTimeMillis(),sensorToUpdate.getSensorName(),sensorToUpdate.isActive(),
-                        sensorToUpdate.getState_event_group(),sensorToUpdate.getTime_based_alarm_time_amount(),sensorToUpdate.getTime_based_alarm_mobile_enable(),sensorToUpdate.getTime_based_alarm_buzzer_enable(),
-                        sensorToUpdate.getHourly_based_alarm_hour_min_time(),sensorToUpdate.getHourly_based_alarm_mobile_enable(),sensorToUpdate.getHourly_based_alarm_buzzer_enable(),sensorToUpdate.getMqttTopic(),
-                        sensorToUpdate.getWifi_ssid(),sensorToUpdate.getWifi_pswd());
-            }
-        });
-        return true;
+        }
     }
 
     public boolean updateSensor(LeafSensor sensor)
