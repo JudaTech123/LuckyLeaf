@@ -17,6 +17,7 @@ import com.example.luckyleaf.R;
 import com.example.luckyleaf.databinding.ItemSensorBinding;
 import com.example.luckyleaf.databinding.ItemSensorOpenBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.network.NetworkConnector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,22 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
     public List<LeafSensor> getSensorList() {
         return sensorList;
     }
-
+    public LeafSensor getSensorByIndex(int index)
+    {
+        if (index==-1 || index>sensorList.size())
+             return null;
+        return sensorList.get(index);
+    }
+    public int findIndexOfOpenSensor()
+    {
+        if(sensorList==null) return -1;
+        for (int index=0;index<sensorList.size();index++)
+        {
+            if (sensorList.get(index).isEditMode())
+                return index;
+        }
+        return -1;
+    }
     public void updateSensorList(List<LeafSensor> sensorList) {
         if (this.sensorList==null || sensorList==null)
             this.sensorList = sensorList;
@@ -68,21 +84,23 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         this.ssidChangedCallBack = ssidChangedCallBack;
         this.wifi_pwdChangedCallBack = wifi_pwdChangedCallBack;
     }
+    private int STATE_CLOSED = 0;
+    private int STATE_OPENED = 1;
 
     @Override
     public int getItemViewType(int position) {
         if (sensorList==null || position < 0 || position >= sensorList.size()) super.getItemViewType(position);
         LeafSensor sensor = sensorList.get(position);
         if (sensor.isEditMode())
-            return 1;
+            return STATE_OPENED;
         else
-            return 0;
+            return STATE_CLOSED;
     }
 
     @NonNull
     @Override
     public SensorListItem onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType==0)
+        if (viewType==STATE_CLOSED)
         {
             ItemSensorBinding dataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.item_sensor, parent, false);
             dataBinding.setSensorIndex(-1);
@@ -122,7 +140,7 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         if (sensor == null) return;
 
 
-        if (getItemViewType(position)==0)
+        if (getItemViewType(position)==STATE_CLOSED)
         {
             ViewDataBinding dataBinding = holder.getMyDataBinding();
             ItemSensorBinding dataBind = (ItemSensorBinding) dataBinding;
@@ -134,12 +152,17 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
             else
                 dataBind.getRoot().setBackgroundResource(R.drawable.list_background);
         }
-        if (getItemViewType(position)==1)
+        if (getItemViewType(position)==STATE_OPENED)
         {
             ViewDataBinding dataBinding = holder.getMyDataBinding();
             ItemSensorOpenBinding dataBind = (ItemSensorOpenBinding) dataBinding;
             dataBind.setSensorIndex(position);
             dataBind.setSensorData(sensor);
+            if (NetworkConnector.getInstance().checkIfConnected(context))
+                dataBind.btnConnect.setText(R.string.disconnect_to_sensor);
+            else
+                dataBind.btnConnect.setText(R.string.connect_to_sensor);
+
             setIconColor(dataBind.imgShortLogo,position % 6);
             if (position==sensorList.size()-1)
                 dataBind.getRoot().setBackgroundResource(R.drawable.list_end_background);

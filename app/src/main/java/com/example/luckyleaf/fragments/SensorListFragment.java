@@ -39,11 +39,13 @@ import com.example.luckyleaf.adapter.SensorAdapter;
 import com.example.luckyleaf.adapter.SensorViewHolder;
 import com.example.luckyleaf.databinding.FragmentSensorListBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.myApp;
 import com.example.luckyleaf.network.Api;
 import com.example.luckyleaf.network.NetworkConnector;
 import com.example.luckyleaf.network.responsemodels.SettingsResponsemodel;
 import com.example.luckyleaf.network.responsemodels.SettingsWifiResponsemodel;
 import com.example.luckyleaf.repo.SensorRepo;
+import com.example.luckyleaf.repo.SharedPrefs;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +59,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     private void sendSettingsToSensor(LeafSensor sensor)
     {
         if (!sensor.isNotifactionSettingsChanged())return;
-        if (Api.instance().isConnectedToSensor())
+        if (NetworkConnector.getInstance().checkIfConnected(requireContext()))
             sendSettingsHTTP(sensor);
         else
         {
@@ -252,9 +254,10 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 }
                 if (i==12)//connect to sensor hot spot
                 {
-                    if (Api.instance().isConnectedToSensor())
+                    if (NetworkConnector.getInstance().checkIfConnected(requireContext()))
                         Api.instance().disconnectFromSensorWifi(requireContext(),sensor);
                     else {
+                        SharedPrefs.instance(myApp.getSelf()).putInt(SharedPrefs.sensorIndex,index);
                         if (Api.instance().connectToSensorWifi(requireContext(), sensor))
                         {
                             pd = new ProgressDialog(requireActivity());
@@ -326,11 +329,36 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
             public void onChanged(List<LeafSensor> leafSensors) {
                 Log.d("juda","onChanged");
                 adapter.updateSensorList(leafSensors);
+                askDataInGet();
             }
         });
         DividerItemDecorator simpleDividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(requireContext(),R.drawable.list_didiver));
         dataBinding.sensorList.addItemDecoration(simpleDividerItemDecoration);
         return dataBinding.getRoot();
+    }
+
+    private void askDataInGet()
+    {
+
+        int selectedIndex = SharedPrefs.instance(myApp.getSelf()).getInt(SharedPrefs.sensorIndex,-1);
+        SharedPrefs.instance(myApp.getSelf()).putInt(SharedPrefs.sensorIndex,-1);
+        LeafSensor selectedSensor = adapter.getSensorByIndex(selectedIndex);
+        if (selectedSensor==null)
+            return;
+        if (Api.instance().connectToSensorWifi(requireContext(), selectedSensor))
+        {
+            pd = new ProgressDialog(requireActivity());
+            pd.setMessage("loading");
+            pd.setCancelable(false);
+            pd.show();
+            connectToSensor(selectedSensor,selectedIndex);
+        }
+    }
+    @Override
+    public void onStart() {
+        super.onStart();
+        adapter.notifyDataSetChanged();
+        askDataInGet();
     }
 
     @Override
