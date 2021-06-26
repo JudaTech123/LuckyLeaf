@@ -100,7 +100,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/imgSettings"
             app:layout_constraintStart_toStartOf="@id/imgShortLogo"
-            android:text="Connect to sensor"
+            android:text="@string/connect_to_sensor"
             android:layout_marginTop="15dp"
             android:onClick="@{()->itemClicked.sensorClicked(sensorData,sensorIndex,12)}"
             />

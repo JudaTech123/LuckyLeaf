@@ -45,18 +45,12 @@ public class Api {
 
     public void disconnectFromSensorWifi(Context context, LeafSensor sensor)
     {
-        if (networkConnector==null)
-            networkConnector = new NetworkConnector();
-        connectedToSensor = false;
-        networkConnector.disconnectFromSensorWifi(context,sensor);
+        NetworkConnector.getInstance().disconnectFromSensorWifi(context);
     }
 
     public boolean connectToSensorWifi(Context context, LeafSensor sensor)
     {
-        if (networkConnector==null)
-            networkConnector = new NetworkConnector();
-
-        if (networkConnector.connectToSensorWifi(context,sensor))
+        if (NetworkConnector.getInstance().connectToSensorWifi(context,sensor))
         {
             connectedToSensor = true;
             return true;
