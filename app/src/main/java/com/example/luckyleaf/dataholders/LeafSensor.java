@@ -111,7 +111,6 @@ public class LeafSensor {
     }
 
     public void setWifi_pswd(String wifi_pswd) {
-        this.wifi_pswd = wifi_pswd;
         tmpWifi_pswd = wifi_pswd;
     }
 
@@ -121,7 +120,6 @@ public class LeafSensor {
 
     public void setWifi_ssid(String wifi_ssid) {
         tmpWifi_ssid = wifi_ssid;
-        this.wifi_ssid = wifi_ssid;
     }
 
     public String getWifi_ssid() {
@@ -161,7 +159,7 @@ public class LeafSensor {
     }
 
     public void setTime_based_alarm_time_amount(long time_based_alarm_time_amount) {
-        this.time_based_alarm_time_amount = time_based_alarm_time_amount;
+        this.tmpTime_based_alarm_time_amount = time_based_alarm_time_amount;
     }
 
     public void setTime_based_alarm_buzzer_enable(boolean time_based_alarm_buzzer_enable) {
@@ -495,6 +493,9 @@ public class LeafSensor {
         if (hourly_based_alarm_hour_min_time!=tmpHourly_based_alarm_hour_min_time) return true;
         if (hourly_based_alarm_buzzer_enable!=tmpHourly_based_alarm_buzzer_enable) return true;
         if (hourly_based_alarm_mobile_enable!=tmpHourly_based_alarm_mobile_enable) return true;
+        if (tmpActive!=active) return true;
+        if (!tmpWifi_ssid.equals(wifi_ssid)) return true;
+        if (!tmpWifi_pswd.equals(wifi_pswd)) return true;
         return false;
     }
 
