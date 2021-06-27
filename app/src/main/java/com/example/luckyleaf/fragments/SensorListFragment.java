@@ -411,6 +411,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 }
                 sensor.setWifi_pswd(settingsWifiResponsemodel.getPswd());
                 sensor.setWifi_ssid(settingsWifiResponsemodel.getSsid());
+                sensor.setActive(settingsWifiResponsemodel.getEnable());
                 Api.instance().askSettingsToSensor().observe(getViewLifecycleOwner(), new Observer<SettingsResponsemodel>() {
                     @Override
                     public void onChanged(SettingsResponsemodel settingsResponsemodel) {

@@ -253,6 +253,9 @@ public class LeafSensor {
     public boolean isActive() {
         return tmpActive;
     }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
     public void toggleActive()
     {
         tmpActive = !tmpActive;
