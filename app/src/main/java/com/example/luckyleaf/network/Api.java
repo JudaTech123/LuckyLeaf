@@ -50,6 +50,7 @@ public class Api {
 
     public boolean connectToSensorWifi(Context context, LeafSensor sensor)
     {
+        if (sensor==null) return false;
         if (NetworkConnector.getInstance().connectToSensorWifi(context,sensor))
         {
             connectedToSensor = true;

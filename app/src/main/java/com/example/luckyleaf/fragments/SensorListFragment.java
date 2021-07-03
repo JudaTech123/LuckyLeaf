@@ -63,14 +63,19 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
             sendSettingsHTTP(sensor);
         else
         {
-            Intent mqttService = new Intent(requireContext(), BackGroundService.class);
-            mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireContext().startForegroundService(mqttService);
-            }
-            else
-                requireContext().startService(mqttService);
+            sendSettingsMQTT(sensor);
         }
+    }
+    private void sendSettingsMQTT(LeafSensor sensor)
+    {
+        if (sensor==null) return;
+        Intent mqttService = new Intent(requireContext(), BackGroundService.class);
+        mqttService.putExtra(BackGroundService.UPDATE_SETTINGS, sensor.getSettingsAsJson());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireContext().startForegroundService(mqttService);
+        }
+        else
+            requireContext().startService(mqttService);
     }
     private void sendWifiSettingHTTPLeafSensorsensor(LeafSensor sensor)
     {
@@ -343,8 +348,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
         int selectedIndex = SharedPrefs.instance(myApp.getSelf()).getInt(SharedPrefs.sensorIndex,-1);
         SharedPrefs.instance(myApp.getSelf()).putInt(SharedPrefs.sensorIndex,-1);
         LeafSensor selectedSensor = adapter.getSensorByIndex(selectedIndex);
-        if (selectedSensor==null)
-            return;
+        //if connected to sensor WIFI do GET command to get sensor data
         if (Api.instance().connectToSensorWifi(requireContext(), selectedSensor))
         {
             pd = new ProgressDialog(requireActivity());
@@ -353,12 +357,21 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
             pd.show();
             connectToSensor(selectedSensor,selectedIndex);
         }
+        else//update MQTT data of sensor settings
+        {
+            int itemCount = adapter.getItemCount();
+            for (int i=0;i<itemCount;i++)
+            {
+                selectedSensor = adapter.getSensorByIndex(selectedIndex);
+                sendSettingsMQTT(selectedSensor);
+            }
+        }
     }
     @Override
     public void onStart() {
         super.onStart();
         adapter.notifyDataSetChanged();
-        askDataInGet();
+//        askDataInGet();
     }
 
     @Override
