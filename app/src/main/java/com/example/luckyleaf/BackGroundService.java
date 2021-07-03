@@ -231,20 +231,24 @@ public class BackGroundService extends LifecycleService {
             if (leafSensor==null) return;
         }
         boolean isStatusChanged = SensorRepo.getInstane().updateSensor(mqttMessage,leafSensor);
-//        sendSettingsToSensor(leafSensor.getSettingsAsJson(false));
-        if (!isStatusChanged) return;
-        switch (leafSensor.getStatus())
+        if (leafSensor.isSingleStateConfigured(mqttMessage))//if only one status than make sound for each status
         {
-            case alarm:
-            case unlocked:
-            case open:
-                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
-                triggerSensorAlramBasedOnTime(leafSensor);
-                break;
-            case locked:
-                removeTimers(leafSensor);
-                break;
+            isStatusChanged = true;
         }
+        if (!isStatusChanged) return;
+        notifyAlarm(leafSensor, leafSensor.getStatusAsString());
+//        switch (leafSensor.getStatus())
+//        {
+//            case alarm:
+//            case unlocked:
+//            case open:
+//                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
+//                triggerSensorAlramBasedOnTime(leafSensor);
+//                break;
+//            case locked:
+//                removeTimers(leafSensor);
+//                break;
+//        }
     }
 
     /**
@@ -254,20 +258,20 @@ public class BackGroundService extends LifecycleService {
     private void triggerSensorAlramBasedOnTime(LeafSensor leafSensor)
     {
         AlarmManager alarmMgr;
-        if (leafSensor.getTime_based_alarm_mobile_enable() && leafSensor.getTime_based_alarm_time_amount()>0)
-        {
-            PendingIntent alarmIntent;
-
-            alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-            Intent intent = new Intent(getApplicationContext(), TimedBroadcast.class);
-            Bundle args = new Bundle();
-            intent.putExtra(unlockAlarmKey,leafSensor.getSensorName() +  " Open too long");
-            alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)leafSensor.getDbID(), intent, 0);
-
-            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() +
-                            leafSensor.getTime_based_alarm_time_amount()*1000, alarmIntent);
-        }
+//        if (leafSensor.getTime_based_alarm_mobile_enable() && leafSensor.getTime_based_alarm_time_amount()>0)
+//        {
+//            PendingIntent alarmIntent;
+//
+//            alarmMgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+//            Intent intent = new Intent(getApplicationContext(), TimedBroadcast.class);
+//            Bundle args = new Bundle();
+//            intent.putExtra(unlockAlarmKey,leafSensor.getSensorName() +  " Open too long");
+//            alarmIntent = PendingIntent.getBroadcast(getApplicationContext(), (int)leafSensor.getDbID(), intent, 0);
+//
+//            alarmMgr.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//                    SystemClock.elapsedRealtime() +
+//                            leafSensor.getTime_based_alarm_time_amount()*1000, alarmIntent);
+//        }
         if (leafSensor.getHourly_based_alarm_mobile_enable())
         {
             long rawTime = leafSensor.getHourly_based_alarm_hour_min_time();

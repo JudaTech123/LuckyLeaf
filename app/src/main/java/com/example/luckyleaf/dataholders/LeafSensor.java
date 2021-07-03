@@ -365,26 +365,36 @@ public class LeafSensor {
         }
     }
 
+    public static int OPEN_STATE    = 1;
+    public static int CLOSED_STATE  = 2;
+    public static int LOCK_STATE    = 4;
     /**
      * This function will check if the status is in the allowed event group:
-     * open == 1
-     * lock == 4
-     * closed == 2
      * @param status what status we got
      * @return true is we should continue process status
      */
     public boolean isStatusAllowed(String status)
     {
-        //open      == 1
-        //lock      == 4
-        //closed    == 2
+        boolean statusAllowed = false;
         Log.d("isStatusAllowed","status = " + status + " getState_event_group = " + getState_event_group());
-        if (status.equals("opened") && (getState_event_group() & 1)!=0)
-            return true;
-        if (status.equals("locked") && (getState_event_group() & 4)!=0)
-            return true;
-        if (status.equals("closed") && (getState_event_group() & 2)!=0)
-            return true;
+        if (status.equals("opened") && (getState_event_group() & OPEN_STATE)!=0)
+            statusAllowed =  true;
+        if (status.equals("locked") && (getState_event_group() & CLOSED_STATE)!=0)
+            statusAllowed =  true;
+        if (status.equals("closed") && (getState_event_group() & LOCK_STATE)!=0)
+            statusAllowed =  true;
+        Log.d("isStatusAllowed","statusAllowed = " + statusAllowed);
+        return statusAllowed;
+    }
+    public boolean isSingleStateConfigured(MqttMessage msg)
+    {
+        MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(msg.getMessage(), MqqtMessageResponseModel.class);
+        if (!isStatusAllowed(mqqtMessageData.getState()))
+            return false;
+        if (getState_event_group()==0) return false;
+        if (getState_event_group()==OPEN_STATE) return true;
+        if (getState_event_group()==CLOSED_STATE) return true;
+        if (getState_event_group()==LOCK_STATE) return true;
         return false;
     }
     public boolean isSameStatus(String strStatusData)
