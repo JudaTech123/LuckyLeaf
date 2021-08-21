@@ -276,7 +276,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                 if (i==13)//remove sensor
                 {
                     SensorRepo.getInstane().removeSensor(sensor);
-                    adapter.updateSensorList(SensorRepo.getInstane().getSensors());
+                    adapter.removeSensor(index,sensor);
                 }
                 return;
             }
@@ -329,13 +329,10 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
         adapter = new SensorAdapter(requireContext(), SensorRepo.getInstane().getSensors(), openFullScreen,textChangedListener,ssidChangedListener,pwdChangedListener);
         dataBinding.setSensorAdapter(adapter);
         LiveData<List<LeafSensor>> data =  SensorRepo.getInstane().askUpdates();
-        data.observe(getViewLifecycleOwner(), new Observer<List<LeafSensor>>() {
-            @Override
-            public void onChanged(List<LeafSensor> leafSensors) {
-                Log.d("juda","onChanged");
-                adapter.updateSensorList(leafSensors);
-                askDataInGet();
-            }
+        data.observe(getViewLifecycleOwner(), leafSensors -> {
+            Log.d("juda_123","onChanged");
+            adapter.updateSensorList(leafSensors);
+            askDataInGet();
         });
         DividerItemDecorator simpleDividerItemDecoration = new DividerItemDecorator(ContextCompat.getDrawable(requireContext(),R.drawable.list_didiver));
         dataBinding.sensorList.addItemDecoration(simpleDividerItemDecoration);
@@ -344,7 +341,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
 
     private void askDataInGet()
     {
-
+        Log.d("juda_123","askDataInGet");
         int selectedIndex = SharedPrefs.instance(myApp.getSelf()).getInt(SharedPrefs.sensorIndex,-1);
         SharedPrefs.instance(myApp.getSelf()).putInt(SharedPrefs.sensorIndex,-1);
         LeafSensor selectedSensor = adapter.getSensorByIndex(selectedIndex);
@@ -371,7 +368,9 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
     public void onStart() {
         super.onStart();
         adapter.notifyDataSetChanged();
-//        askDataInGet();
+        Log.d("juda_123","onStart");
+        if (adapter.getItemCount()>0)
+            askDataInGet();
     }
 
     @Override
@@ -472,6 +471,7 @@ public class SensorListFragment extends Fragment implements View.OnClickListener
                     LeafSensor sensor = new LeafSensor(edtSensorSN.getText().toString(),edtSensorName.getText().toString());
                     SensorRepo.getInstane().addSensor(sensor);
                     adapter.updateSensorList(SensorRepo.getInstane().getSensors());
+                    adapter.notifyItemInserted(0);
                 }
             });
             alertDialog.show();

@@ -49,8 +49,13 @@ public class SensorAdapter extends RecyclerView.Adapter<SensorListItem>{
         }
         return -1;
     }
+    public void removeSensor(int index,LeafSensor sensor)
+    {
+        sensorList.remove(sensor);
+        notifyItemRemoved(index);
+    }
     public void updateSensorList(List<LeafSensor> sensorList) {
-        if (this.sensorList==null || sensorList==null)
+        if (this.sensorList==null || sensorList==null || this.sensorList.isEmpty())
             this.sensorList = sensorList;
         else
         {
