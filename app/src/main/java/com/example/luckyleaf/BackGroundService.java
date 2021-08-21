@@ -353,8 +353,8 @@ public class BackGroundService extends LifecycleService {
                 connectStatus.removeObserver(this);
                 synchronized (sensorUpdate) {
                     Log.d("juda", "connectToMqtt = " + aBoolean);
-                    LiveData<MqttMessage> settingsData = MqqtApi.getInstance().subscribe("response");
-                    settingsData.observe(BackGroundService.this, mqttMessage -> processMqttSettingsMessage(mqttMessage));
+//                    LiveData<MqttMessage> settingsData = MqqtApi.getInstance().subscribe("response");
+//                    settingsData.observe(BackGroundService.this, mqttMessage -> processMqttSettingsMessage(mqttMessage));
                     if (aBoolean) {
                         sensors = SensorRepo.getInstane().getSensors();
                         if (sensors != null) {
