@@ -14,6 +14,7 @@ public class BindingHelper {
     {
         if (view==null || sensor==null) return;
         view.setVisibility(sensor.hasStatus() ? View.VISIBLE : View.GONE);
+        view.setVisibility(sensor.isStatusAllowed() ? View.VISIBLE : View.GONE);
     }
     @BindingAdapter("sensorStatus")
     public static void sensorStatus(ImageView statusImg, LeafSensor sensor)

@@ -235,6 +235,7 @@ public class BackGroundService extends LifecycleService {
             isStatusChanged = true;
         }
         if (!isStatusChanged) return;
+        if (!leafSensor.isStatusAllowed()) return;
         notifyAlarm(leafSensor, leafSensor.getStatusAsString());
 //        switch (leafSensor.getStatus())
 //        {
