@@ -339,9 +339,10 @@ public class LeafSensor {
             case locked:
                 return R.drawable.door_locked;
             case unlocked:
+                return R.drawable.door_unlocked;
             case alarm:
             case open:
-                return R.drawable.door_unlocked;
+                return R.drawable.door_opened;
             default:
                 return R.drawable.sensor_mode_undefined;
         }
@@ -379,9 +380,9 @@ public class LeafSensor {
         Log.d("isStatusAllowed","status = " + status + " getState_event_group = " + getState_event_group());
         if (status.equals("opened") && (getState_event_group() & OPEN_STATE)!=0)
             statusAllowed =  true;
-        if (status.equals("locked") && (getState_event_group() & CLOSED_STATE)!=0)
+        if (status.equals("locked") && (getState_event_group() & LOCK_STATE)!=0)
             statusAllowed =  true;
-        if (status.equals("closed") && (getState_event_group() & LOCK_STATE)!=0)
+        if (status.equals("closed") && (getState_event_group() & CLOSED_STATE)!=0)
             statusAllowed =  true;
         Log.d("isStatusAllowed","statusAllowed = " + statusAllowed);
         return statusAllowed;
@@ -542,6 +543,7 @@ public class LeafSensor {
 
     public boolean isWifiSettingsChanged()
     {
+        if (wifi_ssid==null || wifi_pswd==null) return true;
         if (!wifi_ssid.equals(tmpWifi_ssid)) return true;
         if (!wifi_pswd.equals(tmpWifi_pswd)) return true;
         if (active!=tmpActive) return true;
