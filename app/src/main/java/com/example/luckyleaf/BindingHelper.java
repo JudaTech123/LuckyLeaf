@@ -20,7 +20,12 @@ public class BindingHelper {
     {
         if (statusImg!=null && sensor!=null)
         {
-            statusImg.setImageResource(sensor.getStatusAsImage());
+            if (sensor.isStatusAllowed()) {
+                statusImg.setVisibility(View.VISIBLE);
+                statusImg.setImageResource(sensor.getStatusAsImage());
+            }
+            else
+                statusImg.setVisibility(View.INVISIBLE);
         }
     }
     @BindingAdapter("event_group_type")
@@ -60,12 +65,20 @@ public class BindingHelper {
         if (statusImg!=null && sensor!=null)
         {
             int imageID = sensor.getLockStatusAsImage();
-            if (imageID==R.drawable.sensor_mode_undefined)
-                statusImg.setVisibility(View.INVISIBLE);
-            else {
-                statusImg.setVisibility(View.VISIBLE);
-                statusImg.setImageResource(sensor.getLockStatusAsImage());
+            if (sensor.isStatusAllowed())
+            {
+                if (imageID==R.drawable.sensor_mode_undefined)
+                    statusImg.setVisibility(View.INVISIBLE);
+                else {
+                    statusImg.setVisibility(View.VISIBLE);
+                    statusImg.setImageResource(sensor.getLockStatusAsImage());
+                }
             }
+            else
+            {
+                statusImg.setVisibility(View.INVISIBLE);
+            }
+
         }
     }
 

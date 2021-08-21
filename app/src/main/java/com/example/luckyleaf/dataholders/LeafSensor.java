@@ -387,6 +387,20 @@ public class LeafSensor {
         Log.d("isStatusAllowed","statusAllowed = " + statusAllowed);
         return statusAllowed;
     }
+    public boolean isStatusAllowed()
+    {
+        switch (status)
+        {
+            case locked:
+                return ((getState_event_group() & LOCK_STATE)!=0);
+            case open:
+                return ((getState_event_group() & OPEN_STATE)!=0);
+            case unlocked:
+                return ((getState_event_group() & CLOSED_STATE)!=0);
+            default:
+                return false;
+        }
+    }
     public boolean isSingleStateConfigured(MqttMessage msg)
     {
         MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(msg.getMessage(), MqqtMessageResponseModel.class);

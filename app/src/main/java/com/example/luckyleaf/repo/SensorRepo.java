@@ -104,8 +104,6 @@ public class SensorRepo {
             if (sensor.isSameStatus(statusStr))
                 return false;
             MqqtMessageResponseModel mqqtMessageData = new Gson().fromJson(statusStr, MqqtMessageResponseModel.class);
-            if (!sensor.isStatusAllowed(mqqtMessageData.getState()))
-                return false;
             sensorToUpdate.processStatus(mqqtMessageData);
             myApp.getSelf().getDbHandler().post(new Runnable() {
                 @Override
