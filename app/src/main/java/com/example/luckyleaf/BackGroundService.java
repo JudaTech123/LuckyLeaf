@@ -114,8 +114,7 @@ public class BackGroundService extends LifecycleService {
         Consts.getInstance().initColors(this);
         createSerivceAsForGround();
         mp = MediaPlayer.create(this,R.raw.silentping);
-        if (PrefsHelper.getInstance().getMqttUrl().length()>0)
-            connectToMqtt();
+        connectToMqtt();
         //IntentFilter mTime = new IntentFilter(Intent.ACTION_TIME_TICK);
         //registerReceiver(myTimer, mTime);
         SensorRepo.getInstane().askUpdates().observe(this, new Observer<List<LeafSensor>>() {
@@ -347,7 +346,7 @@ public class BackGroundService extends LifecycleService {
     }
     public void connectToMqtt()
     {
-        LiveData<Boolean> connectStatus = MqqtApi.getInstance().connectInitMqqtApi(getApplication(),"tcp://" + PrefsHelper.getInstance().getMqttUrl() + ":1883",null);
+        LiveData<Boolean> connectStatus = MqqtApi.getInstance().connectInitMqqtApi(getApplication(),"tcp://broker.emqx.io:1883",null);
         connectStatus.observe(this, new Observer<Boolean>() {
             @Override
             public void onChanged(Boolean aBoolean) {
