@@ -14,10 +14,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.luckyleaf.database.DB;
 import com.example.luckyleaf.databinding.ActivityMainBinding;
+import com.example.luckyleaf.databinding.PushScreenBinding;
 import com.example.luckyleaf.dataholders.LeafSensor;
+import com.example.luckyleaf.dataholders.LeafStatus;
 import com.example.luckyleaf.dataholders.MqttMessage;
 import com.example.luckyleaf.network.MqqtApi;
 import com.example.luckyleaf.repo.SensorRepo;
@@ -26,19 +29,35 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavController.OnDestinationChangedListener {
 
-    private ActivityMainBinding dataBinding;
     private NavController navController;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dataBinding =
-                DataBindingUtil.setContentView(this, R.layout.activity_main);
+        Bundle args = getIntent().getExtras();
+        if (args!=null)
+        {
+            if (args.getBoolean("show_login_widnow",false)) {
+                int lockStatusAsImage = args.getInt("lockStatusAsImage",0);
+                String sensorName = args.getString("sensorName","");
+                String sensorStatus = args.getString("sensorStatus","");
+                showPushScreen(lockStatusAsImage,sensorName,sensorStatus);
+                return;
+            }
+        }
+        DataBindingUtil.setContentView(this, R.layout.activity_main);
         navController = Navigation.findNavController(this, R.id.host_fragment);
         navController.addOnDestinationChangedListener(this);
         DB.getDatabase(getApplicationContext());
         startService();
     }
 
+    private void showPushScreen(int lockStatusAsImage,String sensorName,String sensorStatus)
+    {
+        PushScreenBinding dataBinding = DataBindingUtil.setContentView(this, R.layout.push_screen);
+        dataBinding.sensorStatusImg.setImageResource(lockStatusAsImage);
+        dataBinding.txtSensorName.setText(sensorName);
+        dataBinding.txtSensorStatus.setText(sensorStatus);
+    }
     private void startService()
     {
         Intent mqttService = new Intent(this, BackGroundService.class);

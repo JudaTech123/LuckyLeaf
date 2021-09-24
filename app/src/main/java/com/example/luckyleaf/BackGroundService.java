@@ -75,7 +75,7 @@ public class BackGroundService extends LifecycleService {
         return channelId;
     }
 
-    private void notifyAlarm(String message)
+    private void notifyAlarm(String message,@NonNull LeafSensor sensor)
     {
         if (notificationManager!=null)
         {
@@ -83,7 +83,14 @@ public class BackGroundService extends LifecycleService {
                 channelID = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
             // Create an Intent for the activity you want to start
             Intent resultIntent = new Intent(BackGroundService.this, MainActivity.class);
+            resultIntent.putExtra("show_login_widnow",true);
             resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (sensor!=null)
+            {
+                resultIntent.putExtra("lockStatusAsImage",sensor.getLockStatusAsImage());
+                resultIntent.putExtra("sensorName",sensor.getSensorName());
+                resultIntent.putExtra("sensorStatus",sensor.getStatusAsString());
+            }
 
             NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(BackGroundService.this, channelID);
             Notification notification = notificationBuilder.setOngoing(false)
@@ -103,7 +110,7 @@ public class BackGroundService extends LifecycleService {
     private void notifyAlarm(@NonNull LeafSensor sensor, String Notifymessage)
     {
         String message = sensor.getSensorName() + " " + Notifymessage;
-        notifyAlarm(message);
+        notifyAlarm(message,sensor);
     }
     final String unlockAlarmKey = "unlockKey";
     ArrayList<LeafSensor> sensors;
@@ -147,7 +154,7 @@ public class BackGroundService extends LifecycleService {
                 if (intent!=null && intent.getExtras()!=null && intent.getExtras().containsKey(unlockAlarmKey))
                 {
                     String title = intent.getExtras().getString(unlockAlarmKey);
-                    notifyAlarm(title);
+                    notifyAlarm(title,null);
                 }
             }
             if (intent.getExtras().containsKey(RECONNECT_MQTT))
@@ -234,21 +241,11 @@ public class BackGroundService extends LifecycleService {
         {
             isStatusChanged = true;
         }
+        if (BuildConfig.DEBUG)
+            notifyAlarm(leafSensor, leafSensor.getStatusAsString());
         if (!isStatusChanged) return;
         if (!leafSensor.isStatusAllowed()) return;
         notifyAlarm(leafSensor, leafSensor.getStatusAsString());
-//        switch (leafSensor.getStatus())
-//        {
-//            case alarm:
-//            case unlocked:
-//            case open:
-//                notifyAlarm(leafSensor, leafSensor.getStatusAsString());
-//                triggerSensorAlramBasedOnTime(leafSensor);
-//                break;
-//            case locked:
-//                removeTimers(leafSensor);
-//                break;
-//        }
     }
 
     /**
